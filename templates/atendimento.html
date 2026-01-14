@@ -241,6 +241,346 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
     </div>
   </div>
 </div>
+
+<!-- MODAL VISUALIZAR CLIENTE -->
+<div class="modal" id="modalVisualizarCliente">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes do Cliente</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div id="clienteDetalhesAtendimento">
+      <!-- Detalhes serão inseridos via JavaScript -->
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="verOSClienteAtual()"
+      >
+        Ver OS do Cliente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VISUALIZAR O.S -->
+<div class="modal" id="modalVisualizarOS">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes da Ordem de Serviço</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div id="osDetalhes">
+      <!-- Detalhes serão inseridos via JavaScript -->
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button type="button" class="btn btn-primary" onclick="editarOSAtual()">
+        Editar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONSULTAR ESTOQUE -->
+<div class="modal" id="modalConsultarEstoque">
+  <div class="modal-content large-modal">
+    <div class="modal-header">
+      <h2>Consulta de Estoque</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div class="estoque-modal-content">
+      <!-- CARDS DE ESTATÍSTICAS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📦</div>
+          <div class="stat-info">
+            <h3 id="modalTotalProdutos">0</h3>
+            <p>Total de Produtos</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="stat-info">
+            <h3 id="modalValorTotal">R$ 0,00</h3>
+            <p>Valor Total do Estoque</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon yellow">⚠️</div>
+          <div class="stat-info">
+            <h3 id="modalEstoqueBaixo">0</h3>
+            <p>Estoque Baixo</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon red">🚨</div>
+          <div class="stat-info">
+            <h3 id="modalEstoqueCritico">0</h3>
+            <p>Estoque Crítico</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filters-section">
+        <div class="filter-controls">
+          <select id="modalCategoryFilter" class="filter-btn">
+            <option value="">Todas Categorias</option>
+            <option value="Telas">Telas</option>
+            <option value="Baterias">Baterias</option>
+            <option value="Câmeras">Câmeras</option>
+            <option value="Conectores">Conectores</option>
+            <option value="Alto-falantes">Alto-falantes</option>
+            <option value="Outros">Outros</option>
+          </select>
+          <button
+            class="filter-btn active"
+            data-filter="all"
+            id="modalFilterAll"
+          >
+            Todos
+          </button>
+          <button class="filter-btn" data-filter="ok" id="modalFilterOk">
+            Estoque OK
+          </button>
+          <button class="filter-btn" data-filter="baixo" id="modalFilterBaixo">
+            Estoque Baixo
+          </button>
+          <button
+            class="filter-btn"
+            data-filter="critico"
+            id="modalFilterCritico"
+          >
+            Crítico
+          </button>
+        </div>
+        <div class="results-info">
+          <span id="modalResultadosInfo">Mostrando 0 produtos</span>
+        </div>
+      </div>
+
+      <!-- TABELA DE PRODUTOS -->
+      <div class="table-container">
+        <table class="products-table" id="modalProductsTable">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Qtd. Atual</th>
+              <th>Mín.</th>
+              <th>Preço Custo</th>
+              <th>Valor Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="modalProductsTableBody">
+            <!-- Dados serão inseridos via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="irParaEstoqueCompleto()"
+      >
+        Ver Estoque Completo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR O.S -->
+<div class="modal" id="modalEditarOS">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalEditarTitle">Editar Ordem de Serviço</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <form id="formEditarOS">
+      <input type="hidden" id="editOsId" name="id" />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editNumeroOS">Número da O.S</label>
+          <input
+            type="text"
+            id="editNumeroOS"
+            name="numeroOS"
+            placeholder="Auto-gerado"
+            readonly
+          />
+        </div>
+        <div class="form-group">
+          <label for="editPrioridade">Prioridade *</label>
+          <select id="editPrioridade" name="prioridade" required>
+            <option value="">Selecione...</option>
+            <option value="baixa">Baixa</option>
+            <option value="normal" selected>Normal</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editCliente">Cliente *</label>
+        <select id="editCliente" name="clienteId" required>
+          <option value="">Selecione o cliente...</option>
+          <!-- Opções serão preenchidas via JavaScript -->
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editTipoAparelho">Tipo de Aparelho *</label>
+          <select id="editTipoAparelho" name="tipoAparelho" required>
+            <option value="">Selecione...</option>
+            <option value="smartphone">Smartphone</option>
+            <option value="tablet">Tablet</option>
+            <option value="notebook">Notebook</option>
+            <option value="desktop">Desktop</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editMarcaModelo">Marca/Modelo *</label>
+          <input
+            type="text"
+            id="editMarcaModelo"
+            name="marcaModelo"
+            placeholder="Ex: iPhone 12 Pro"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editImeiSerial">IMEI/Serial</label>
+          <input
+            type="text"
+            id="editImeiSerial"
+            name="imeiSerial"
+            placeholder="Número de série"
+          />
+        </div>
+        <div class="form-group">
+          <label for="editCorAparelho">Cor</label>
+          <input
+            type="text"
+            id="editCorAparelho"
+            name="corAparelho"
+            placeholder="Ex: Preto, Branco"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editProblemaRelatado">Problema Relatado *</label>
+        <textarea
+          id="editProblemaRelatado"
+          name="problemaRelatado"
+          rows="4"
+          placeholder="Descreva o problema reportado pelo cliente"
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <label for="editDiagnosticoTecnico">Pré-diagnóstico</label>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnGerarDiagnosticoEdit"
+            onclick="gerarDiagnosticoAIEdit()"
+            style="font-size: 12px; padding: 6px 12px"
+          >
+            🧠 Diagnóstico Preview
+          </button>
+        </div>
+        <textarea
+          id="editDiagnosticoTecnico"
+          name="diagnosticoTecnico"
+          rows="3"
+          placeholder="Pré-diagnóstico gerado pela IA ou realizado pelo técnico"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPrazoEstimado">Prazo Estimado (dias) *</label>
+          <input
+            type="number"
+            id="editPrazoEstimado"
+            name="prazoEstimado"
+            value="3"
+            min="1"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="editValorOrcamento">Valor do Orçamento</label>
+          <input
+            type="text"
+            id="editValorOrcamento"
+            name="valorOrcamento"
+            placeholder="R$ 0,00"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editObservacoes">Observações</label>
+        <textarea
+          id="editObservacoes"
+          name="observacoes"
+          rows="3"
+          placeholder="Informações adicionais sobre a O.S"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" id="submitEditarBtn">
+          Atualizar O.S
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %} {% block extra_scripts %}
 <script src="/js/clientes.js"></script>
 <script src="/js/estoque.js"></script>
@@ -258,6 +598,9 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
 
   // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
   let searchInput, osTableBody;
+
+  // Variável para armazenar o cliente atual sendo visualizado
+  let clienteAtual = null;
 
   // ============================
   // FUNÇÕES DE DADOS (usando API)
@@ -495,9 +838,173 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   }
 
   /**
-   * Redireciona para página de estoque
+   * Abre modal para consultar estoque
    */
-  function consultarEstoque() {
+  async function consultarEstoque() {
+    console.log("📦 Abrindo modal de consulta de estoque...");
+
+    // Carrega produtos se ainda não foram carregados
+    if (!produtosEmMemoria || produtosEmMemoria.length === 0) {
+      await carregarProdutos();
+    }
+
+    // Abre o modal
+    const modal = document.getElementById("modalConsultarEstoque");
+    modal.classList.add("active");
+
+    // Renderiza os dados no modal
+    renderizarEstoqueModal();
+  }
+
+  /**
+   * Renderiza dados do estoque no modal
+   */
+  function renderizarEstoqueModal() {
+    atualizarEstatisticasModal();
+    aplicarFiltrosModal();
+  }
+
+  /**
+   * Atualiza estatísticas no modal
+   */
+  function atualizarEstatisticasModal() {
+    const total = produtosEmMemoria.length;
+    const valorTotal = produtosEmMemoria.reduce(
+      (total, p) => total + p.quantidade * p.precoCusto,
+      0
+    );
+    const estoqueBaixo = produtosEmMemoria.filter(
+      (p) => calcularStatusEstoque(p.quantidade, p.estoqueMinimo) === "baixo"
+    ).length;
+    const estoqueCritico = produtosEmMemoria.filter(
+      (p) => calcularStatusEstoque(p.quantidade, p.estoqueMinimo) === "critico"
+    ).length;
+
+    document.getElementById("modalTotalProdutos").textContent = total;
+    document.getElementById(
+      "modalValorTotal"
+    ).textContent = `R$ ${valorTotal.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+    })}`;
+    document.getElementById("modalEstoqueBaixo").textContent = estoqueBaixo;
+    document.getElementById("modalEstoqueCritico").textContent = estoqueCritico;
+  }
+
+  /**
+   * Aplica filtros no modal
+   */
+  function aplicarFiltrosModal() {
+    const filtroCategoria = document.getElementById(
+      "modalCategoryFilter"
+    ).value;
+    const filtroStatus =
+      document
+        .querySelector("#modalConsultarEstoque .filter-btn.active")
+        ?.getAttribute("data-filter") || "all";
+
+    // Busca por termo (se houvesse campo de busca, mas não há no modal simples)
+    let produtos = [...produtosEmMemoria];
+
+    // Filtro por categoria
+    if (filtroCategoria) {
+      produtos = produtos.filter(
+        (p) => p.categoria.toLowerCase() === filtroCategoria.toLowerCase()
+      );
+    }
+
+    // Filtro por status
+    if (filtroStatus !== "all") {
+      produtos = produtos.filter((p) => {
+        const status = calcularStatusEstoque(p.quantidade, p.estoqueMinimo);
+        return status === filtroStatus;
+      });
+    }
+
+    // Atualiza contador
+    const resultadosInfo = document.getElementById("modalResultadosInfo");
+    if (resultadosInfo) {
+      resultadosInfo.textContent = `Mostrando ${produtos.length} produto${
+        produtos.length !== 1 ? "s" : ""
+      }`;
+    }
+
+    // Renderiza tabela
+    renderizarTabelaModal(produtos);
+  }
+
+  /**
+   * Renderiza tabela de produtos no modal
+   */
+  function renderizarTabelaModal(produtos) {
+    const tbody = document.getElementById("modalProductsTableBody");
+    tbody.innerHTML = "";
+
+    if (produtos.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-medium);">
+            <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
+            <div>Nenhum produto encontrado</div>
+            <div style="font-size: 14px; margin-top: 10px;">Ajuste os filtros para ver produtos.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    produtos.forEach((produto) => {
+      const row = document.createElement("tr");
+      const status = calcularStatusEstoque(
+        produto.quantidade,
+        produto.estoqueMinimo
+      );
+      const valorTotal = produto.quantidade * produto.precoCusto;
+
+      row.innerHTML = `
+        <td><strong>${produto.codigo}</strong></td>
+        <td>
+          <div class="product-info">
+            <div class="product-img">${getIconeCategoria(
+              produto.categoria
+            )}</div>
+            <div>
+              <div class="product-name">${produto.nome}</div>
+              ${
+                produto.descricao
+                  ? `<div class="product-desc">${produto.descricao.substring(
+                      0,
+                      30
+                    )}${produto.descricao.length > 30 ? "..." : ""}</div>`
+                  : ""
+              }
+            </div>
+          </div>
+        </td>
+        <td>${produto.categoria}</td>
+        <td class="quantidade-cell ${
+          status === "critico" ? "critico" : status === "baixo" ? "baixo" : ""
+        }">
+          <strong>${produto.quantidade}</strong>
+        </td>
+        <td>${produto.estoqueMinimo}</td>
+        <td>R$ ${produto.precoCusto.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+        })}</td>
+        <td>R$ ${valorTotal.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+        })}</td>
+        <td><span class="stock-badge ${status}">${getStatusText(
+        status
+      )}</span></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  /**
+   * Redireciona para a página completa de estoque
+   */
+  function irParaEstoqueCompleto() {
     window.location.href = "/estoque";
   }
 
@@ -510,17 +1017,467 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   }
 
   /**
-   * Visualiza OS
+   * Visualiza OS - abre modal na mesma página
    */
   function visualizarOS(id) {
-    window.location.href = `/os#view=${id}`;
+    const os = osEmMemoria.find((o) => o.id === parseInt(id));
+    if (!os) {
+      console.error("OS não encontrada:", id);
+      return;
+    }
+
+    osAtual = os;
+    const modal = document.getElementById("modalVisualizarOS");
+    const detalhes = document.getElementById("osDetalhes");
+
+    const dataCriacao = new Date(os.dataCriacao);
+    const prazoLimite = new Date(dataCriacao);
+    prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+    const hoje = new Date();
+    const atrasada =
+      hoje > prazoLimite &&
+      os.status !== "entregue" &&
+      os.status !== "cancelado";
+
+    detalhes.innerHTML = `
+                <div class="os-details">
+                    <div class="os-header">
+                        <div class="os-number">${os.numeroOS}</div>
+                        <div class="os-status">
+                            <span class="status-badge ${
+                              os.status
+                            }">${getStatusText(os.status)}</span>
+                            <span class="prioridade-badge ${
+                              os.prioridade || "normal"
+                            }">${getPrioridadeText(
+      os.prioridade || "normal"
+    )}</span>
+                        </div>
+                    </div>
+
+                    <div class="os-details-grid">
+                        <div class="detail-item">
+                            <label>Cliente:</label>
+                            <span>${os.clienteNome}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Tipo de Aparelho:</label>
+                            <span>${os.tipoAparelho}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Marca/Modelo:</label>
+                            <span>${os.marcaModelo}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>IMEI/Serial:</label>
+                            <span>${os.imeiSerial || "Não informado"}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Cor:</label>
+                            <span>${os.corAparelho || "Não informado"}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Data de Criação:</label>
+                            <span>${formatarDataHora(os.dataCriacao)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Prazo Estimado:</label>
+                            <span>${os.prazoEstimado} dias</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Prazo Limite:</label>
+                            <span class="${
+                              atrasada ? "atrasada" : ""
+                            }">${formatarData(prazoLimite)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Valor do Orçamento:</label>
+                            <span>${
+                              os.valorOrcamento
+                                ? "R$ " +
+                                  parseFloat(os.valorOrcamento).toFixed(2)
+                                : "Não informado"
+                            }</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <label>Problema Relatado:</label>
+                            <span>${os.problemaRelatado}</span>
+                        </div>
+                        ${
+                          os.diagnosticoTecnico
+                            ? `
+                        <div class="detail-item full-width">
+                            <label>Diagnóstico Técnico:</label>
+                            <span>${os.diagnosticoTecnico}</span>
+                        </div>
+                        `
+                            : ""
+                        }
+                        ${
+                          os.observacoes
+                            ? `
+                        <div class="detail-item full-width">
+                            <label>Observações:</label>
+                            <span>${os.observacoes}</span>
+                        </div>
+                        `
+                            : ""
+                        }
+                    </div>
+                </div>
+            `;
+
+    modal.classList.add("active");
   }
 
   /**
-   * Edita OS
+   * Edita OS - abre modal na mesma página
    */
   function editarOS(id) {
-    window.location.href = `/os#edit=${id}`;
+    const os = osEmMemoria.find((o) => o.id === parseInt(id));
+    if (!os) {
+      console.error("OS não encontrada:", id);
+      return;
+    }
+
+    const modal = document.getElementById("modalEditarOS");
+    const modalTitle = document.getElementById("modalEditarTitle");
+
+    modalTitle.textContent = "Editar Ordem de Serviço";
+
+    // Preenche o formulário com os dados da OS
+    preencherFormularioEdicao(os);
+
+    // Carrega clientes no select
+    carregarClientesSelectEdicao();
+
+    // Configura event listener do formulário
+    configurarEventListenerFormularioEdicao();
+
+    modal.classList.add("active");
+  }
+
+  /**
+   * Edita a OS atual (do modal de visualização)
+   */
+  function editarOSAtual() {
+    if (osAtual) {
+      fecharModal();
+      setTimeout(() => {
+        editarOS(osAtual.id);
+      }, 300);
+    }
+  }
+
+  // Variável para armazenar a OS atual sendo visualizada
+  let osAtual = null;
+
+  // ============================
+  // FUNÇÕES AUXILIARES PARA MODAIS
+  // ============================
+
+  /**
+   * Retorna texto da prioridade
+   */
+  function getPrioridadeText(prioridade) {
+    const prioridadeMap = {
+      baixa: "Baixa",
+      normal: "Normal",
+      alta: "Alta",
+      urgente: "Urgente",
+    };
+    return prioridadeMap[prioridade] || "Normal";
+  }
+
+  /**
+   * Formata data para exibição
+   */
+  function formatarData(data) {
+    if (!data) return "N/A";
+    const d = new Date(data);
+    return d.toLocaleDateString("pt-BR");
+  }
+
+  /**
+   * Formata data e hora para exibição
+   */
+  function formatarDataHora(data) {
+    if (!data) return "N/A";
+    const d = new Date(data);
+    return d.toLocaleString("pt-BR");
+  }
+
+  /**
+   * Carrega clientes no select do modal de edição
+   */
+  function carregarClientesSelectEdicao() {
+    const selectCliente = document.getElementById("editCliente");
+    selectCliente.innerHTML =
+      '<option value="">Selecione o cliente...</option>';
+
+    clientesEmMemoria.forEach((cliente) => {
+      const option = document.createElement("option");
+      option.value = cliente.id;
+      option.textContent = cliente.nome;
+      selectCliente.appendChild(option);
+    });
+  }
+
+  /**
+   * Preenche formulário de edição com dados da OS
+   */
+  function preencherFormularioEdicao(os) {
+    document.getElementById("editOsId").value = os.id;
+    document.getElementById("editNumeroOS").value = os.numeroOS;
+    document.getElementById("editPrioridade").value = os.prioridade || "normal";
+    document.getElementById("editCliente").value = os.clienteId;
+    document.getElementById("editTipoAparelho").value = os.tipoAparelho;
+    document.getElementById("editMarcaModelo").value = os.marcaModelo;
+    document.getElementById("editImeiSerial").value = os.imeiSerial || "";
+    document.getElementById("editCorAparelho").value = os.corAparelho || "";
+    document.getElementById("editProblemaRelatado").value = os.problemaRelatado;
+    document.getElementById("editDiagnosticoTecnico").value =
+      os.diagnosticoTecnico || "";
+    document.getElementById("editPrazoEstimado").value = os.prazoEstimado || 3;
+    document.getElementById("editValorOrcamento").value =
+      os.valorOrcamento || "";
+    document.getElementById("editObservacoes").value = os.observacoes || "";
+  }
+
+  /**
+   * Atualiza uma OS existente via API
+   */
+  async function atualizarOS(id, dadosAtualizados) {
+    try {
+      const atualizado = await atualizarOSApi(id, dadosAtualizados);
+
+      // Atualiza no array local
+      const indice = osEmMemoria.findIndex((o) => o.id === parseInt(id));
+      if (indice !== -1) {
+        osEmMemoria[indice] = atualizado;
+      }
+
+      console.log("✅ OS atualizada:", atualizado.numeroOS);
+      return true;
+    } catch (e) {
+      console.error("❌ Erro ao atualizar OS:", e);
+      throw e;
+    }
+  }
+
+  /**
+   * Gera diagnóstico com IA para edição
+   */
+  async function gerarDiagnosticoAIEdit() {
+    const btn = document.getElementById("btnGerarDiagnosticoEdit");
+    const tipoAparelho = document
+      .getElementById("editTipoAparelho")
+      .value.trim();
+    const marcaModelo = document.getElementById("editMarcaModelo").value.trim();
+    const problemaRelatado = document
+      .getElementById("editProblemaRelatado")
+      .value.trim();
+    const diagnosticoField = document.getElementById("editDiagnosticoTecnico");
+
+    // Validação
+    if (!tipoAparelho || !marcaModelo || !problemaRelatado) {
+      alert(
+        "Para gerar o diagnóstico, é necessário preencher: Tipo de Aparelho, Marca/Modelo e Problema Relatado."
+      );
+      return;
+    }
+
+    // Desabilita botão durante processamento
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "🧠 Gerando...";
+
+    try {
+      console.log("🤖 Gerando diagnóstico com IA...");
+      const resultado = await gerarDiagnosticoApi({
+        tipoAparelho: tipoAparelho,
+        marcaModelo: marcaModelo,
+        problema: problemaRelatado,
+      });
+
+      if (resultado && resultado.diagnostico) {
+        diagnosticoField.value = resultado.diagnostico;
+        console.log("✅ Diagnóstico gerado com sucesso!");
+        alert("Pré-diagnóstico gerado com sucesso pela IA!");
+      } else {
+        throw new Error("Resposta da IA inválida");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao gerar diagnóstico:", error);
+      alert(
+        "Erro ao gerar diagnóstico com IA. Tente novamente.\n\n" +
+          (error.message || "Erro desconhecido")
+      );
+    } finally {
+      // Reabilita botão
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  }
+
+  /**
+   * Configura event listener do formulário de edição
+   */
+  function configurarEventListenerFormularioEdicao() {
+    const formEditarOS = document.getElementById("formEditarOS");
+    if (!formEditarOS) return;
+
+    // Remove event listener anterior se existir
+    const novoFormEditarOS = formEditarOS.cloneNode(true);
+    formEditarOS.parentNode.replaceChild(novoFormEditarOS, formEditarOS);
+
+    // Adiciona o event listener ao novo formulário
+    novoFormEditarOS.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const dados = Object.fromEntries(formData.entries());
+
+      // Processar campos especiais antes da validação
+      if (dados.valorOrcamento) {
+        // Converter "R$ 9,99" para 9.99
+        dados.valorOrcamento = dados.valorOrcamento
+          .replace("R$ ", "") // Remove "R$ "
+          .replace(".", "") // Remove pontos de milhares
+          .replace(",", "."); // Converte vírgula para ponto
+        dados.valorOrcamento = parseFloat(dados.valorOrcamento) || 0;
+      }
+
+      // Validação
+      const validacao = validarFormularioOS(dados);
+      if (!validacao.valido) {
+        alert("Erro na validação:\n" + validacao.erros.join("\n"));
+        return;
+      }
+
+      const osId = document.getElementById("editOsId").value;
+
+      console.log("🔄 Atualizando OS - ID:", osId, "dados:", dados);
+
+      if (atualizarOS(osId, dados)) {
+        alert("O.S atualizada com sucesso!");
+
+        // Atualiza notificações se disponível
+        if (window.notificationManager) {
+          window.notificationManager.atualizarContador();
+        }
+
+        fecharModal();
+        renderizarTabelaOS(filtroStatusAtual);
+      } else {
+        alert("Erro ao atualizar O.S. Tente novamente.");
+      }
+    });
+
+    // Formatação automática de campos
+    const valorOrcamento = novoFormEditarOS.querySelector(
+      "#editValorOrcamento"
+    );
+    if (valorOrcamento) {
+      valorOrcamento.addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, "");
+        value = (parseInt(value) / 100).toFixed(2);
+        value = value.replace(".", ",");
+        value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        e.target.value = "R$ " + value;
+      });
+    }
+  }
+
+  /**
+   * Visualiza detalhes do cliente
+   */
+  function visualizarCliente(id) {
+    const cliente = clientesEmMemoria.find((c) => c.id === parseInt(id));
+    if (!cliente) return;
+
+    clienteAtual = cliente;
+    const modal = document.getElementById("modalVisualizarCliente");
+    const detalhes = document.getElementById("clienteDetalhesAtendimento");
+
+    detalhes.innerHTML = `
+      <div class="client-details">
+        <div class="client-header">
+          <div class="client-avatar-large">${cliente.nome
+            .charAt(0)
+            .toUpperCase()}</div>
+          <div class="client-info-large">
+            <h3>${cliente.nome}</h3>
+            <p class="client-type">${
+              cliente.tipoPessoa === "pessoa_juridica"
+                ? "Pessoa Jurídica"
+                : "Pessoa Física"
+            }</p>
+          </div>
+        </div>
+
+        <div class="client-details-grid">
+          <div class="detail-item">
+            <label>CPF/CNPJ:</label>
+            <span>${cliente.cpfCnpj}</span>
+          </div>
+          <div class="detail-item">
+            <label>Telefone:</label>
+            <span>${cliente.telefone || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>E-mail:</label>
+            <span>${cliente.email || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>Endereço:</label>
+            <span>${cliente.endereco || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status:</label>
+            <span class="status-badge ${cliente.status || "ativo"}">${
+      cliente.status || "Ativo"
+    }</span>
+          </div>
+          <div class="detail-item">
+            <label>Data de Cadastro:</label>
+            <span>${formatarDataHora(cliente.dataCadastro)}</span>
+          </div>
+          ${
+            cliente.observacoes
+              ? `
+          <div class="detail-item full-width">
+            <label>Observações:</label>
+            <span>${cliente.observacoes}</span>
+          </div>
+          `
+              : ""
+          }
+        </div>
+      </div>
+    `;
+
+    modal.classList.add("active");
+  }
+
+  /**
+   * Seleciona o cliente atual (do modal de visualização)
+   */
+  function selecionarClienteAtual() {
+    if (clienteAtual) {
+      selecionarCliente(clienteAtual.id);
+    }
+  }
+
+  /**
+   * Ver OS do cliente atual
+   */
+  function verOSClienteAtual() {
+    if (clienteAtual) {
+      window.location.href = `/os?search=${encodeURIComponent(
+        clienteAtual.nome
+      )}`;
+    }
   }
 
   /**
@@ -617,42 +1574,24 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
           return;
         }
 
-        const osId = document.getElementById("osId").value;
+        console.log("📝 Criando nova OS - dados:", dados);
 
-        console.log("📝 Processando formulário - osId:", osId, "dados:", dados);
+        // Adicionar nova OS
+        const resultado = await adicionarOS(dados);
+        console.log("Resultado da criação:", resultado);
 
-        if (osId) {
-          console.log("🔄 Atualizando OS existente:", osId);
-          // Atualizar OS existente
-          if (atualizarOS(osId, dados)) {
-            alert("O.S atualizada com sucesso!");
-            fecharModal();
-            renderizarTabelaOS(filtroStatusAtual);
-          } else {
-            alert("Erro ao atualizar O.S. Tente novamente.");
-          }
+        if (resultado) {
+          alert("O.S criada com sucesso!");
+          fecharModal();
+
+          console.log("🔄 Recarregando dados da API...");
+          // Recarrega dados da API e reaplica filtros
+          await carregarOS();
+          console.log("✅ Dados recarregados - Total OS:", osEmMemoria.length);
+
+          renderizarTabelaOS(filtroStatusAtual);
         } else {
-          console.log("➕ Criando nova OS");
-          // Adicionar nova OS
-          const resultado = await adicionarOS(dados);
-          console.log("Resultado da criação:", resultado);
-
-          if (resultado) {
-            alert("O.S criada com sucesso!");
-            fecharModal();
-
-            console.log("🔄 Recarregando dados da API...");
-            // Recarrega dados da API e reaplica filtros
-            await carregarOS();
-            console.log(
-              "✅ Dados recarregados - Total OS:",
-              osEmMemoria.length
-            );
-
-            renderizarTabelaOS(filtroStatusAtual);
-          } else {
-            alert("Erro ao criar O.S. Tente novamente.");
-          }
+          alert("Erro ao criar O.S. Tente novamente.");
         }
       });
     }
@@ -711,9 +1650,14 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
             }</p>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" onclick="selecionarCliente('${
-                                  cliente.id
-                                }')">Selecionar</button>
+                                <div class="cliente-actions">
+                                    <button class="btn btn-secondary" onclick="visualizarCliente('${
+                                      cliente.id
+                                    }')">👁️ Visualizar</button>
+                                    <button class="btn btn-primary" onclick="selecionarCliente('${
+                                      cliente.id
+                                    }')">Selecionar</button>
+                                </div>
                             `;
             container.appendChild(div);
           });
@@ -753,6 +1697,27 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         console.log("🔍 Filtro aplicado:", filtroStatusAtual);
       });
     });
+
+    // Eventos de filtro no modal de estoque
+    const modalCategoryFilter = document.getElementById("modalCategoryFilter");
+    if (modalCategoryFilter) {
+      modalCategoryFilter.addEventListener("change", aplicarFiltrosModal);
+    }
+
+    // Eventos de filtros de status no modal
+    document
+      .querySelectorAll("#modalConsultarEstoque .filter-btn[data-filter]")
+      .forEach((btn) => {
+        btn.addEventListener("click", function () {
+          // Remove classe active de todos os botões do modal
+          document
+            .querySelectorAll("#modalConsultarEstoque .filter-btn[data-filter]")
+            .forEach((b) => b.classList.remove("active"));
+          // Adiciona classe active no botão clicado
+          this.classList.add("active");
+          aplicarFiltrosModal();
+        });
+      });
 
     // Fechar modal ao clicar fora
     document.querySelectorAll(".modal").forEach((modal) => {
@@ -914,6 +1879,73 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
     align-items: center;
     justify-content: center;
     font-weight: bold;
+  }
+
+  .cliente-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .cliente-avatar-large {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .client-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .client-info-large h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 24px;
+  }
+
+  .client-type {
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+  }
+
+  .client-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .detail-item.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .detail-item label {
+    font-weight: 600;
+    color: var(--gray-dark);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-item span {
+    color: var(--gray-dark);
+    font-size: 14px;
   }
 
   .alert-item.critical {
