@@ -195,62 +195,117 @@ def criar_notificacao_cliente_novo(cliente, usuario_id):
 def verificar_e_criar_notificacoes():
     """Verifica condições do sistema e cria notificações automaticamente."""
     try:
+        from datetime import datetime, timedelta
+        hoje = datetime.utcnow()
+
         # Busca todos os usuários ativos
-        usuarios = Usuario.query.filter_by(ativo=True).all()
+        usuarios_ids = [u.id for u in Usuario.query.filter_by(ativo=True).all()]
 
-        for usuario in usuarios:
-            # Verifica OS atrasadas
-            from datetime import datetime, timedelta
-            hoje = datetime.utcnow()
+        if not usuarios_ids:
+            print("Nenhum usuário ativo encontrado")
+            return
 
-            os_atrasadas = OrdemServico.query.filter(
-                OrdemServico.status.in_(['aguardando', 'em_reparo']),
-                OrdemServico.criado_em + timedelta(days=OrdemServico.prazo_estimado) < hoje
+        notificacoes_para_criar = []
+
+        # === VERIFICA OS ATRASADAS ===
+        os_atrasadas = OrdemServico.query.filter(
+            OrdemServico.status.in_(['aguardando', 'em_reparo']),
+            OrdemServico.criado_em + timedelta(days=OrdemServico.prazo_estimado) < hoje
+        ).all()
+
+        if os_atrasadas:
+            # Busca notificações existentes para OS atrasadas
+            os_ids_existentes = {os.id for os in os_atrasadas}
+            notificacoes_existentes_os = Notificacao.query.filter(
+                Notificacao.tipo == "os_atrasada",
+                Notificacao.usuario_id.in_(usuarios_ids),
+                Notificacao.dados_referencia['os_id'].astext.cast(db.Integer).in_(os_ids_existentes)
             ).all()
 
-            for os in os_atrasadas:
-                # Verifica se já existe notificação para esta OS
-                existente = Notificacao.query.filter_by(
-                    tipo="os_atrasada",
-                    usuario_id=usuario.id,
-                    dados_referencia={"os_id": os.id, "cliente_id": os.cliente_id}
-                ).first()
+            # Mapeia quais combinações já existem
+            existentes_map = {(n.usuario_id, n.dados_referencia.get('os_id')) for n in notificacoes_existentes_os}
 
-                if not existente:
-                    criar_notificacao_os_atrasada(os, usuario.id)
+            # Cria notificações apenas para combinações que não existem
+            for usuario_id in usuarios_ids:
+                for os in os_atrasadas:
+                    if (usuario_id, os.id) not in existentes_map:
+                        notificacao = Notificacao(
+                            tipo="os_atrasada",
+                            titulo=f"OS {os.numero_os} - Prazo Vencido",
+                            mensagem=f"Cliente {os.cliente.nome} aguardando retorno. Prazo estimado excedido.",
+                            dados_referencia={"os_id": os.id, "cliente_id": os.cliente_id},
+                            prioridade="alta",
+                            usuario_id=usuario_id
+                        )
+                        notificacoes_para_criar.append(notificacao)
 
-            # Verifica estoque crítico
-            produtos_criticos = ProdutoEstoque.query.filter(
-                ProdutoEstoque.quantidade <= ProdutoEstoque.estoque_minimo
+        # === VERIFICA ESTOQUE CRÍTICO ===
+        produtos_criticos = ProdutoEstoque.query.filter(
+            ProdutoEstoque.quantidade <= ProdutoEstoque.estoque_minimo
+        ).all()
+
+        if produtos_criticos:
+            # Busca notificações existentes para produtos críticos
+            produto_ids_existentes = {p.id for p in produtos_criticos}
+            notificacoes_existentes_prod = Notificacao.query.filter(
+                Notificacao.tipo == "estoque_critico",
+                Notificacao.usuario_id.in_(usuarios_ids),
+                Notificacao.dados_referencia['produto_id'].astext.cast(db.Integer).in_(produto_ids_existentes)
             ).all()
 
-            for produto in produtos_criticos:
-                # Verifica se já existe notificação para este produto
-                existente = Notificacao.query.filter_by(
-                    tipo="estoque_critico",
-                    usuario_id=usuario.id,
-                    dados_referencia={"produto_id": produto.id}
-                ).first()
+            # Mapeia quais combinações já existem
+            existentes_prod_map = {(n.usuario_id, n.dados_referencia.get('produto_id')) for n in notificacoes_existentes_prod}
 
-                if not existente:
-                    criar_notificacao_estoque_critico(produto, usuario.id)
+            # Cria notificações apenas para combinações que não existem
+            for usuario_id in usuarios_ids:
+                for produto in produtos_criticos:
+                    if (usuario_id, produto.id) not in existentes_prod_map:
+                        notificacao = Notificacao(
+                            tipo="estoque_critico",
+                            titulo=f"{produto.nome} - Estoque Crítico",
+                            mensagem=f"Apenas {produto.quantidade} unidades disponíveis (mínimo: {produto.estoque_minimo}).",
+                            dados_referencia={"produto_id": produto.id},
+                            prioridade="alta",
+                            usuario_id=usuario_id
+                        )
+                        notificacoes_para_criar.append(notificacao)
 
-            # Verifica OS prontas
-            os_prontas = OrdemServico.query.filter_by(status="pronto").all()
+        # === VERIFICA OS PRONTAS ===
+        os_prontas = OrdemServico.query.filter_by(status="pronto").all()
 
-            for os in os_prontas:
-                # Verifica se já existe notificação para esta OS
-                existente = Notificacao.query.filter_by(
-                    tipo="os_pronta",
-                    usuario_id=usuario.id,
-                    dados_referencia={"os_id": os.id, "cliente_id": os.cliente_id}
-                ).first()
+        if os_prontas:
+            # Busca notificações existentes para OS prontas
+            os_prontas_ids = {os.id for os in os_prontas}
+            notificacoes_existentes_prontas = Notificacao.query.filter(
+                Notificacao.tipo == "os_pronta",
+                Notificacao.usuario_id.in_(usuarios_ids),
+                Notificacao.dados_referencia['os_id'].astext.cast(db.Integer).in_(os_prontas_ids)
+            ).all()
 
-                if not existente:
-                    criar_notificacao_os_pronta(os, usuario.id)
+            # Mapeia quais combinações já existem
+            existentes_prontas_map = {(n.usuario_id, n.dados_referencia.get('os_id')) for n in notificacoes_existentes_prontas}
 
-        db.session.commit()
-        print("✅ Verificação de notificações concluída")
+            # Cria notificações apenas para combinações que não existem
+            for usuario_id in usuarios_ids:
+                for os in os_prontas:
+                    if (usuario_id, os.id) not in existentes_prontas_map:
+                        notificacao = Notificacao(
+                            tipo="os_pronta",
+                            titulo=f"OS {os.numero_os} - Pronta para Retirada",
+                            mensagem=f"Aparelho de {os.cliente.nome} está pronto. Cliente deve ser contactado.",
+                            dados_referencia={"os_id": os.id, "cliente_id": os.cliente_id},
+                            prioridade="normal",
+                            usuario_id=usuario_id
+                        )
+                        notificacoes_para_criar.append(notificacao)
+
+        # Insere todas as notificações de uma vez
+        if notificacoes_para_criar:
+            db.session.bulk_save_objects(notificacoes_para_criar)
+            db.session.commit()
+            print(f"✅ Criadas {len(notificacoes_para_criar)} notificações automaticamente")
+        else:
+            print("✅ Verificação de notificações concluída - nenhuma nova notificação necessária")
 
     except Exception as e:
         db.session.rollback()

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from flask import Blueprint, abort, jsonify, request
+from sqlalchemy.orm import joinedload
 
 from extensions import db
 from models import Cliente, OrdemServico, Usuario
@@ -63,7 +64,9 @@ def gerar_proximo_numero_os() -> str:
 @login_required
 def listar_os():
     ordens = (
-        OrdemServico.query.order_by(OrdemServico.criado_em.desc()).join(Cliente).all()
+        OrdemServico.query.options(joinedload(OrdemServico.cliente))
+        .order_by(OrdemServico.criado_em.desc())
+        .all()
     )
     return jsonify([os_to_dict(o) for o in ordens])
 
@@ -106,16 +109,26 @@ def criar_os():
     db.session.add(os_obj)
     db.session.commit()
 
-    # Tentar gerar resumo automático usando IA
+    # Gera resumo automático usando IA em background (não bloqueia resposta)
     try:
-        resumo_ia = gerar_resumo(data["problemaRelatado"])
-        # Atualizar observações com o resumo da IA se não houver observações
-        if not os_obj.observacoes:
-            os_obj.observacoes = f"[IA] Resumo: {resumo_ia}"
-            db.session.commit()
+        from threading import Thread
+        def gerar_resumo_background():
+            try:
+                resumo_ia = gerar_resumo(data["problemaRelatado"])
+                # Atualizar observações com o resumo da IA se não houver observações
+                if not os_obj.observacoes:
+                    os_obj.observacoes = f"[IA] Resumo: {resumo_ia}"
+                    db.session.commit()
+                print(f"✅ Resumo IA gerado para OS {os_obj.numero_os}")
+            except Exception as e:
+                print(f"Aviso: Não foi possível gerar resumo automático para OS {os_obj.numero_os}: {e}")
+
+        # Executa em thread separada para não bloquear resposta
+        thread = Thread(target=gerar_resumo_background, daemon=True)
+        thread.start()
     except Exception as e:
-        print(f"Aviso: Não foi possível gerar resumo automático: {e}")
-        # Não afeta a criação da OS se a IA falhar
+        print(f"Aviso: Não foi possível iniciar geração de resumo em background: {e}")
+        # Não afeta a criação da OS se falhar
 
     return jsonify(os_to_dict(os_obj)), 201
 
