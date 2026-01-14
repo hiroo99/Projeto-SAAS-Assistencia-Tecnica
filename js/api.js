@@ -20,7 +20,7 @@ async function apiRequest(path, options = {}) {
     if (!resp.ok) {
       const contentType = resp.headers.get("content-type");
       let texto = await resp.text();
-      
+
       // Tenta fazer parse como JSON primeiro
       let erroJson = null;
       try {
@@ -28,15 +28,22 @@ async function apiRequest(path, options = {}) {
       } catch (e) {
         // Se não for JSON, verifica se é HTML
         if (contentType && contentType.includes("text/html")) {
-          console.error("Erro na API - Recebeu HTML em vez de JSON", resp.status);
+          console.error(
+            "Erro na API - Recebeu HTML em vez de JSON",
+            resp.status
+          );
           // Tenta extrair mensagem de erro do HTML se possível
-          const match = texto.match(/<p class="errormsg">([^<]+)<\/p>/i) || 
-                       texto.match(/<h1>([^<]+)<\/h1>/i);
+          const match =
+            texto.match(/<p class="errormsg">([^<]+)<\/p>/i) ||
+            texto.match(/<h1>([^<]+)<\/h1>/i);
           const mensagemErro = match ? match[1].trim() : null;
-          throw new Error(mensagemErro || `Erro no servidor (${resp.status}). O servidor retornou HTML em vez de JSON.`);
+          throw new Error(
+            mensagemErro ||
+              `Erro no servidor (${resp.status}). O servidor retornou HTML em vez de JSON.`
+          );
         }
       }
-      
+
       // Se conseguiu fazer parse como JSON, usa a mensagem de erro
       if (erroJson) {
         const mensagemErro = erroJson.mensagem || erroJson.erro || texto;
@@ -46,7 +53,7 @@ async function apiRequest(path, options = {}) {
         console.error("Erro na API", resp.status, erroJson);
         throw erroPersonalizado;
       }
-      
+
       // Fallback: usa o texto como está
       console.error("Erro na API", resp.status, texto);
       throw new Error(texto || `Erro na API (${resp.status})`);
@@ -62,15 +69,21 @@ async function apiRequest(path, options = {}) {
     if (e.status) {
       throw e;
     }
-    
+
     console.error("Falha ao chamar API:", e);
-    
+
     // Verifica se é erro de rede/conexão
-    if (e.message.includes("fetch") || e.message.includes("Failed to fetch") || e.message.includes("NetworkError")) {
-      alert("Não foi possível comunicar com o servidor. Verifique se o Flask está rodando.");
+    if (
+      e.message.includes("fetch") ||
+      e.message.includes("Failed to fetch") ||
+      e.message.includes("NetworkError")
+    ) {
+      alert(
+        "Não foi possível comunicar com o servidor. Verifique se o Flask está rodando."
+      );
       throw e;
     }
-    
+
     // Para outros erros, re-lança para que o código chamador possa tratar
     throw e;
   }
@@ -161,4 +174,15 @@ async function deletarOSApi(id) {
     method: "DELETE",
   });
   return true;
+}
+
+// ========================================
+// AI - Funções específicas
+// ========================================
+
+async function gerarDiagnosticoApi(dados) {
+  return await apiRequest("/api/ai/diagnostico", {
+    method: "POST",
+    body: JSON.stringify(dados),
+  });
 }

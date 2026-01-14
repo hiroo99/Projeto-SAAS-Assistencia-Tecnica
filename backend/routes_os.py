@@ -6,6 +6,7 @@ from extensions import db
 from models import Cliente, OrdemServico, Usuario
 from auth_utils import login_required
 from routes_notificacoes import criar_notificacao_os_pronta
+from ai_utils import gerar_resumo
 
 bp = Blueprint("os", __name__)
 
@@ -62,9 +63,7 @@ def gerar_proximo_numero_os() -> str:
 @login_required
 def listar_os():
     ordens = (
-        OrdemServico.query.order_by(OrdemServico.criado_em.desc())
-        .join(Cliente)
-        .all()
+        OrdemServico.query.order_by(OrdemServico.criado_em.desc()).join(Cliente).all()
     )
     return jsonify([os_to_dict(o) for o in ordens])
 
@@ -106,6 +105,17 @@ def criar_os():
 
     db.session.add(os_obj)
     db.session.commit()
+
+    # Tentar gerar resumo automático usando IA
+    try:
+        resumo_ia = gerar_resumo(data["problemaRelatado"])
+        # Atualizar observações com o resumo da IA se não houver observações
+        if not os_obj.observacoes:
+            os_obj.observacoes = f"[IA] Resumo: {resumo_ia}"
+            db.session.commit()
+    except Exception as e:
+        print(f"Aviso: Não foi possível gerar resumo automático: {e}")
+        # Não afeta a criação da OS se a IA falhar
 
     return jsonify(os_to_dict(os_obj)), 201
 
@@ -182,23 +192,38 @@ def consultar_status_os_publico(numero_os: str):
     """Rota pública para consulta de status da OS por clientes."""
     os_obj = OrdemServico.query.filter_by(numero_os=numero_os).first()
     if not os_obj:
-        return jsonify({
-            "erro": "OS não encontrada",
-            "mensagem": f"Não foi encontrada uma ordem de serviço com o número {numero_os}"
-        }), 404
+        return (
+            jsonify(
+                {
+                    "erro": "OS não encontrada",
+                    "mensagem": f"Não foi encontrada uma ordem de serviço com o número {numero_os}",
+                }
+            ),
+            404,
+        )
 
     # Retorna dados públicos da OS
-    return jsonify({
-        "numeroOS": os_obj.numero_os,
-        "status": os_obj.status,
-        "clienteNome": os_obj.cliente.nome if os_obj.cliente else "Cliente não informado",
-        "tipoAparelho": os_obj.tipo_aparelho,
-        "marcaModelo": os_obj.marca_modelo,
-        "problemaRelatado": os_obj.problema_relatado,
-        "diagnosticoTecnico": os_obj.diagnostico_tecnico,
-        "prazoEstimado": os_obj.prazo_estimado,
-        "valorOrcamento": float(os_obj.valor_orcamento or 0),
-        "dataCriacao": os_obj.criado_em.isoformat() if os_obj.criado_em else None,
-        "dataAtualizacao": os_obj.atualizado_em.isoformat() if os_obj.atualizado_em else None,
-        "prazoLimite": (os_obj.criado_em + timedelta(days=os_obj.prazo_estimado)).isoformat() if os_obj.criado_em else None
-    })
+    return jsonify(
+        {
+            "numeroOS": os_obj.numero_os,
+            "status": os_obj.status,
+            "clienteNome": (
+                os_obj.cliente.nome if os_obj.cliente else "Cliente não informado"
+            ),
+            "tipoAparelho": os_obj.tipo_aparelho,
+            "marcaModelo": os_obj.marca_modelo,
+            "problemaRelatado": os_obj.problema_relatado,
+            "diagnosticoTecnico": os_obj.diagnostico_tecnico,
+            "prazoEstimado": os_obj.prazo_estimado,
+            "valorOrcamento": float(os_obj.valor_orcamento or 0),
+            "dataCriacao": os_obj.criado_em.isoformat() if os_obj.criado_em else None,
+            "dataAtualizacao": (
+                os_obj.atualizado_em.isoformat() if os_obj.atualizado_em else None
+            ),
+            "prazoLimite": (
+                (os_obj.criado_em + timedelta(days=os_obj.prazo_estimado)).isoformat()
+                if os_obj.criado_em
+                else None
+            ),
+        }
+    )

@@ -17,6 +17,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     SECRET_KEY = os.getenv("SECRET_KEY", "mude-esta-chave-em-producao")
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 
 class DevelopmentConfig(Config):
@@ -36,6 +37,3 @@ config_by_name = dict(
 def get_config():
     env = os.getenv("FLASK_ENV", "development")
     return config_by_name.get(env, DevelopmentConfig)
-
-
-
