@@ -242,6 +242,33 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   </div>
 </div>
 
+<!-- MODAL VISUALIZAR CLIENTE -->
+<div class="modal" id="modalVisualizarCliente">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes do Cliente</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div id="clienteDetalhesAtendimento">
+      <!-- Detalhes serão inseridos via JavaScript -->
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="verOSClienteAtual()"
+      >
+        Ver OS do Cliente
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL VISUALIZAR O.S -->
 <div class="modal" id="modalVisualizarOS">
   <div class="modal-content">
@@ -260,6 +287,125 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
       </button>
       <button type="button" class="btn btn-primary" onclick="editarOSAtual()">
         Editar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONSULTAR ESTOQUE -->
+<div class="modal" id="modalConsultarEstoque">
+  <div class="modal-content large-modal">
+    <div class="modal-header">
+      <h2>Consulta de Estoque</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div class="estoque-modal-content">
+      <!-- CARDS DE ESTATÍSTICAS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📦</div>
+          <div class="stat-info">
+            <h3 id="modalTotalProdutos">0</h3>
+            <p>Total de Produtos</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="stat-info">
+            <h3 id="modalValorTotal">R$ 0,00</h3>
+            <p>Valor Total do Estoque</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon yellow">⚠️</div>
+          <div class="stat-info">
+            <h3 id="modalEstoqueBaixo">0</h3>
+            <p>Estoque Baixo</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon red">🚨</div>
+          <div class="stat-info">
+            <h3 id="modalEstoqueCritico">0</h3>
+            <p>Estoque Crítico</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filters-section">
+        <div class="filter-controls">
+          <select id="modalCategoryFilter" class="filter-btn">
+            <option value="">Todas Categorias</option>
+            <option value="Telas">Telas</option>
+            <option value="Baterias">Baterias</option>
+            <option value="Câmeras">Câmeras</option>
+            <option value="Conectores">Conectores</option>
+            <option value="Alto-falantes">Alto-falantes</option>
+            <option value="Outros">Outros</option>
+          </select>
+          <button
+            class="filter-btn active"
+            data-filter="all"
+            id="modalFilterAll"
+          >
+            Todos
+          </button>
+          <button class="filter-btn" data-filter="ok" id="modalFilterOk">
+            Estoque OK
+          </button>
+          <button class="filter-btn" data-filter="baixo" id="modalFilterBaixo">
+            Estoque Baixo
+          </button>
+          <button
+            class="filter-btn"
+            data-filter="critico"
+            id="modalFilterCritico"
+          >
+            Crítico
+          </button>
+        </div>
+        <div class="results-info">
+          <span id="modalResultadosInfo">Mostrando 0 produtos</span>
+        </div>
+      </div>
+
+      <!-- TABELA DE PRODUTOS -->
+      <div class="table-container">
+        <table class="products-table" id="modalProductsTable">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Qtd. Atual</th>
+              <th>Mín.</th>
+              <th>Preço Custo</th>
+              <th>Valor Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="modalProductsTableBody">
+            <!-- Dados serão inseridos via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="irParaEstoqueCompleto()"
+      >
+        Ver Estoque Completo
       </button>
     </div>
   </div>
@@ -452,6 +598,9 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
 
   // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
   let searchInput, osTableBody;
+
+  // Variável para armazenar o cliente atual sendo visualizado
+  let clienteAtual = null;
 
   // ============================
   // FUNÇÕES DE DADOS (usando API)
@@ -689,9 +838,173 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   }
 
   /**
-   * Redireciona para página de estoque
+   * Abre modal para consultar estoque
    */
-  function consultarEstoque() {
+  async function consultarEstoque() {
+    console.log("📦 Abrindo modal de consulta de estoque...");
+
+    // Carrega produtos se ainda não foram carregados
+    if (!produtosEmMemoria || produtosEmMemoria.length === 0) {
+      await carregarProdutos();
+    }
+
+    // Abre o modal
+    const modal = document.getElementById("modalConsultarEstoque");
+    modal.classList.add("active");
+
+    // Renderiza os dados no modal
+    renderizarEstoqueModal();
+  }
+
+  /**
+   * Renderiza dados do estoque no modal
+   */
+  function renderizarEstoqueModal() {
+    atualizarEstatisticasModal();
+    aplicarFiltrosModal();
+  }
+
+  /**
+   * Atualiza estatísticas no modal
+   */
+  function atualizarEstatisticasModal() {
+    const total = produtosEmMemoria.length;
+    const valorTotal = produtosEmMemoria.reduce(
+      (total, p) => total + p.quantidade * p.precoCusto,
+      0
+    );
+    const estoqueBaixo = produtosEmMemoria.filter(
+      (p) => calcularStatusEstoque(p.quantidade, p.estoqueMinimo) === "baixo"
+    ).length;
+    const estoqueCritico = produtosEmMemoria.filter(
+      (p) => calcularStatusEstoque(p.quantidade, p.estoqueMinimo) === "critico"
+    ).length;
+
+    document.getElementById("modalTotalProdutos").textContent = total;
+    document.getElementById(
+      "modalValorTotal"
+    ).textContent = `R$ ${valorTotal.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+    })}`;
+    document.getElementById("modalEstoqueBaixo").textContent = estoqueBaixo;
+    document.getElementById("modalEstoqueCritico").textContent = estoqueCritico;
+  }
+
+  /**
+   * Aplica filtros no modal
+   */
+  function aplicarFiltrosModal() {
+    const filtroCategoria = document.getElementById(
+      "modalCategoryFilter"
+    ).value;
+    const filtroStatus =
+      document
+        .querySelector("#modalConsultarEstoque .filter-btn.active")
+        ?.getAttribute("data-filter") || "all";
+
+    // Busca por termo (se houvesse campo de busca, mas não há no modal simples)
+    let produtos = [...produtosEmMemoria];
+
+    // Filtro por categoria
+    if (filtroCategoria) {
+      produtos = produtos.filter(
+        (p) => p.categoria.toLowerCase() === filtroCategoria.toLowerCase()
+      );
+    }
+
+    // Filtro por status
+    if (filtroStatus !== "all") {
+      produtos = produtos.filter((p) => {
+        const status = calcularStatusEstoque(p.quantidade, p.estoqueMinimo);
+        return status === filtroStatus;
+      });
+    }
+
+    // Atualiza contador
+    const resultadosInfo = document.getElementById("modalResultadosInfo");
+    if (resultadosInfo) {
+      resultadosInfo.textContent = `Mostrando ${produtos.length} produto${
+        produtos.length !== 1 ? "s" : ""
+      }`;
+    }
+
+    // Renderiza tabela
+    renderizarTabelaModal(produtos);
+  }
+
+  /**
+   * Renderiza tabela de produtos no modal
+   */
+  function renderizarTabelaModal(produtos) {
+    const tbody = document.getElementById("modalProductsTableBody");
+    tbody.innerHTML = "";
+
+    if (produtos.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-medium);">
+            <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
+            <div>Nenhum produto encontrado</div>
+            <div style="font-size: 14px; margin-top: 10px;">Ajuste os filtros para ver produtos.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    produtos.forEach((produto) => {
+      const row = document.createElement("tr");
+      const status = calcularStatusEstoque(
+        produto.quantidade,
+        produto.estoqueMinimo
+      );
+      const valorTotal = produto.quantidade * produto.precoCusto;
+
+      row.innerHTML = `
+        <td><strong>${produto.codigo}</strong></td>
+        <td>
+          <div class="product-info">
+            <div class="product-img">${getIconeCategoria(
+              produto.categoria
+            )}</div>
+            <div>
+              <div class="product-name">${produto.nome}</div>
+              ${
+                produto.descricao
+                  ? `<div class="product-desc">${produto.descricao.substring(
+                      0,
+                      30
+                    )}${produto.descricao.length > 30 ? "..." : ""}</div>`
+                  : ""
+              }
+            </div>
+          </div>
+        </td>
+        <td>${produto.categoria}</td>
+        <td class="quantidade-cell ${
+          status === "critico" ? "critico" : status === "baixo" ? "baixo" : ""
+        }">
+          <strong>${produto.quantidade}</strong>
+        </td>
+        <td>${produto.estoqueMinimo}</td>
+        <td>R$ ${produto.precoCusto.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+        })}</td>
+        <td>R$ ${valorTotal.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+        })}</td>
+        <td><span class="stock-badge ${status}">${getStatusText(
+        status
+      )}</span></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  /**
+   * Redireciona para a página completa de estoque
+   */
+  function irParaEstoqueCompleto() {
     window.location.href = "/estoque";
   }
 
@@ -1077,6 +1390,97 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   }
 
   /**
+   * Visualiza detalhes do cliente
+   */
+  function visualizarCliente(id) {
+    const cliente = clientesEmMemoria.find((c) => c.id === parseInt(id));
+    if (!cliente) return;
+
+    clienteAtual = cliente;
+    const modal = document.getElementById("modalVisualizarCliente");
+    const detalhes = document.getElementById("clienteDetalhesAtendimento");
+
+    detalhes.innerHTML = `
+      <div class="client-details">
+        <div class="client-header">
+          <div class="client-avatar-large">${cliente.nome
+            .charAt(0)
+            .toUpperCase()}</div>
+          <div class="client-info-large">
+            <h3>${cliente.nome}</h3>
+            <p class="client-type">${
+              cliente.tipoPessoa === "pessoa_juridica"
+                ? "Pessoa Jurídica"
+                : "Pessoa Física"
+            }</p>
+          </div>
+        </div>
+
+        <div class="client-details-grid">
+          <div class="detail-item">
+            <label>CPF/CNPJ:</label>
+            <span>${cliente.cpfCnpj}</span>
+          </div>
+          <div class="detail-item">
+            <label>Telefone:</label>
+            <span>${cliente.telefone || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>E-mail:</label>
+            <span>${cliente.email || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>Endereço:</label>
+            <span>${cliente.endereco || "Não informado"}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status:</label>
+            <span class="status-badge ${cliente.status || "ativo"}">${
+      cliente.status || "Ativo"
+    }</span>
+          </div>
+          <div class="detail-item">
+            <label>Data de Cadastro:</label>
+            <span>${formatarDataHora(cliente.dataCadastro)}</span>
+          </div>
+          ${
+            cliente.observacoes
+              ? `
+          <div class="detail-item full-width">
+            <label>Observações:</label>
+            <span>${cliente.observacoes}</span>
+          </div>
+          `
+              : ""
+          }
+        </div>
+      </div>
+    `;
+
+    modal.classList.add("active");
+  }
+
+  /**
+   * Seleciona o cliente atual (do modal de visualização)
+   */
+  function selecionarClienteAtual() {
+    if (clienteAtual) {
+      selecionarCliente(clienteAtual.id);
+    }
+  }
+
+  /**
+   * Ver OS do cliente atual
+   */
+  function verOSClienteAtual() {
+    if (clienteAtual) {
+      window.location.href = `/os?search=${encodeURIComponent(
+        clienteAtual.nome
+      )}`;
+    }
+  }
+
+  /**
    * Fecha todos os modais
    */
   function fecharModal() {
@@ -1246,9 +1650,14 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
             }</p>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" onclick="selecionarCliente('${
-                                  cliente.id
-                                }')">Selecionar</button>
+                                <div class="cliente-actions">
+                                    <button class="btn btn-secondary" onclick="visualizarCliente('${
+                                      cliente.id
+                                    }')">👁️ Visualizar</button>
+                                    <button class="btn btn-primary" onclick="selecionarCliente('${
+                                      cliente.id
+                                    }')">Selecionar</button>
+                                </div>
                             `;
             container.appendChild(div);
           });
@@ -1288,6 +1697,27 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         console.log("🔍 Filtro aplicado:", filtroStatusAtual);
       });
     });
+
+    // Eventos de filtro no modal de estoque
+    const modalCategoryFilter = document.getElementById("modalCategoryFilter");
+    if (modalCategoryFilter) {
+      modalCategoryFilter.addEventListener("change", aplicarFiltrosModal);
+    }
+
+    // Eventos de filtros de status no modal
+    document
+      .querySelectorAll("#modalConsultarEstoque .filter-btn[data-filter]")
+      .forEach((btn) => {
+        btn.addEventListener("click", function () {
+          // Remove classe active de todos os botões do modal
+          document
+            .querySelectorAll("#modalConsultarEstoque .filter-btn[data-filter]")
+            .forEach((b) => b.classList.remove("active"));
+          // Adiciona classe active no botão clicado
+          this.classList.add("active");
+          aplicarFiltrosModal();
+        });
+      });
 
     // Fechar modal ao clicar fora
     document.querySelectorAll(".modal").forEach((modal) => {
@@ -1449,6 +1879,73 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
     align-items: center;
     justify-content: center;
     font-weight: bold;
+  }
+
+  .cliente-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .cliente-avatar-large {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .client-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .client-info-large h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 24px;
+  }
+
+  .client-type {
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+  }
+
+  .client-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .detail-item.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .detail-item label {
+    font-weight: 600;
+    color: var(--gray-dark);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-item span {
+    color: var(--gray-dark);
+    font-size: 14px;
   }
 
   .alert-item.critical {

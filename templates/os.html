@@ -14,7 +14,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
 
 <!-- CARDS DE ESTATÍSTICAS -->
 <div class="stats-grid">
-  <div class="stat-card">
+  <div class="stat-card" onclick="filtrarPorStatus('')">
     <div class="stat-icon blue">📋</div>
     <div class="stat-info">
       <h3 id="totalOS">0</h3>
@@ -22,7 +22,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" onclick="filtrarPorStatus('aguardando')">
     <div class="stat-icon yellow">⏳</div>
     <div class="stat-info">
       <h3 id="osAguardando">0</h3>
@@ -30,7 +30,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" onclick="filtrarPorStatus('em_reparo')">
     <div class="stat-icon green">🔧</div>
     <div class="stat-info">
       <h3 id="osEmReparo">0</h3>
@@ -38,7 +38,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" onclick="filtrarPorStatus('atrasadas')">
     <div class="stat-icon red">⚠️</div>
     <div class="stat-info">
       <h3 id="osAtrasadas">0</h3>
@@ -320,6 +320,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
   let osAtual = null;
   let paginaAtual = 1;
   const itensPorPagina = 10;
+  let filtroEspecial = null; // Para filtros especiais como "atrasadas"
 
   // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
   let searchInput,
@@ -687,8 +688,17 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     // Busca por termo
     let os = buscarOS(termoBusca);
 
-    // Filtro por status
-    if (filtroStatus) {
+    // Filtro por status ou filtro especial
+    if (filtroEspecial === "atrasadas") {
+      const hoje = new Date();
+      os = os.filter((os) => {
+        if (os.status === "entregue" || os.status === "cancelado") return false;
+        const dataCriacao = new Date(os.dataCriacao);
+        const prazoLimite = new Date(dataCriacao);
+        prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+        return hoje > prazoLimite;
+      });
+    } else if (filtroStatus) {
       os = os.filter((o) => o.status === filtroStatus);
     }
 
@@ -735,6 +745,22 @@ endblock %} {% set active_page = 'os' %} {% block content %}
       .querySelector('.filter-btn[data-filtro="todas"]')
       .classList.add("active");
 
+    filtroEspecial = null; // Reset filtro especial
+
+    aplicarFiltros();
+  }
+
+  /**
+   * Filtra OS por status (usado pelos cards de estatísticas)
+   */
+  function filtrarPorStatus(status) {
+    if (status === "atrasadas") {
+      filtroEspecial = "atrasadas";
+      document.getElementById("filtroStatus").value = "";
+    } else {
+      filtroEspecial = null;
+      document.getElementById("filtroStatus").value = status;
+    }
     aplicarFiltros();
   }
 
