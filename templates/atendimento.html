@@ -617,42 +617,24 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
           return;
         }
 
-        const osId = document.getElementById("osId").value;
+        console.log("📝 Criando nova OS - dados:", dados);
 
-        console.log("📝 Processando formulário - osId:", osId, "dados:", dados);
+        // Adicionar nova OS
+        const resultado = await adicionarOS(dados);
+        console.log("Resultado da criação:", resultado);
 
-        if (osId) {
-          console.log("🔄 Atualizando OS existente:", osId);
-          // Atualizar OS existente
-          if (atualizarOS(osId, dados)) {
-            alert("O.S atualizada com sucesso!");
-            fecharModal();
-            renderizarTabelaOS(filtroStatusAtual);
-          } else {
-            alert("Erro ao atualizar O.S. Tente novamente.");
-          }
+        if (resultado) {
+          alert("O.S criada com sucesso!");
+          fecharModal();
+
+          console.log("🔄 Recarregando dados da API...");
+          // Recarrega dados da API e reaplica filtros
+          await carregarOS();
+          console.log("✅ Dados recarregados - Total OS:", osEmMemoria.length);
+
+          renderizarTabelaOS(filtroStatusAtual);
         } else {
-          console.log("➕ Criando nova OS");
-          // Adicionar nova OS
-          const resultado = await adicionarOS(dados);
-          console.log("Resultado da criação:", resultado);
-
-          if (resultado) {
-            alert("O.S criada com sucesso!");
-            fecharModal();
-
-            console.log("🔄 Recarregando dados da API...");
-            // Recarrega dados da API e reaplica filtros
-            await carregarOS();
-            console.log(
-              "✅ Dados recarregados - Total OS:",
-              osEmMemoria.length
-            );
-
-            renderizarTabelaOS(filtroStatusAtual);
-          } else {
-            alert("Erro ao criar O.S. Tente novamente.");
-          }
+          alert("Erro ao criar O.S. Tente novamente.");
         }
       });
     }
