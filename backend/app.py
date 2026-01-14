@@ -28,7 +28,14 @@ def create_app():
     migrate.init_app(app, db)
 
     # Importa models para que o Migrate reconheça
-    from models import Cliente, ProdutoEstoque, OrdemServico, Usuario  # noqa: F401
+    from models import (
+        Cliente,
+        ProdutoEstoque,
+        OrdemServico,
+        Usuario,
+        Notificacao,
+        SolucoesDocument,
+    )  # noqa: F401
 
     # Cria todas as tabelas no banco de dados
     with app.app_context():

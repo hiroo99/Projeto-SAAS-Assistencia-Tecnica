@@ -5,9 +5,7 @@ from extensions import db
 
 class TimestampMixin:
     criado_em = db.Column(db.DateTime, default=datetime.now)
-    atualizado_em = db.Column(
-        db.DateTime, default=datetime.now, onupdate=datetime.now
-    )
+    atualizado_em = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
 
 class Cliente(TimestampMixin, db.Model):
@@ -98,12 +96,41 @@ class Notificacao(TimestampMixin, db.Model):
     __tablename__ = "notificacoes"
 
     id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String(50), nullable=False)  # os_atrasada, estoque_critico, etc.
+    tipo = db.Column(
+        db.String(50), nullable=False
+    )  # os_atrasada, estoque_critico, etc.
     titulo = db.Column(db.String(200), nullable=False)
     mensagem = db.Column(db.Text, nullable=False)
     dados_referencia = db.Column(db.JSON)  # Dados para link/ação (ex: {"os_id": 123})
     lida = db.Column(db.Boolean, default=False)
-    prioridade = db.Column(db.String(20), default="normal")  # baixa, normal, alta, urgente
+    prioridade = db.Column(
+        db.String(20), default="normal"
+    )  # baixa, normal, alta, urgente
 
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False)
     usuario = db.relationship("Usuario", back_populates="notificacoes")
+
+
+class SolucoesDocument(TimestampMixin, db.Model):
+    __tablename__ = "solucoes_document"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Chave estrangeira para OrdemServico
+    os_id = db.Column(db.Integer, db.ForeignKey("ordens_servico.id"), nullable=False)
+    os = db.relationship("OrdemServico", backref="solucoes_document")
+
+    # Dados da OS (denormalizados para facilitar consultas)
+    numero = db.Column(db.String(20), nullable=False)
+    data = db.Column(db.DateTime, nullable=False)
+    idcliente = db.Column(db.Integer, db.ForeignKey("clientes.id"), nullable=False)
+    cliente = db.relationship("Cliente", backref="solucoes_document")
+    descricao_problema = db.Column(db.String(400), nullable=False)
+    marca = db.Column(db.String(100), nullable=False)
+    tipo = db.Column(db.String(50), nullable=False)
+    data_abertura = db.Column(db.DateTime, nullable=False)
+    data_fechamento = db.Column(db.DateTime)
+
+    # Campos específicos da IA
+    diagnostico_ia = db.Column(db.Text)
+    solucoes_ia = db.Column(db.Text)
