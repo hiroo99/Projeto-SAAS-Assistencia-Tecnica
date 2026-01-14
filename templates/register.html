@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - TechAI Assist</title>
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        /* Estilos específicos para a página de cadastro */
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #088bab 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .register-container {
+            background: #18415b;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .logo-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .logo-section img {
+            width: 120px;
+            height: auto;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            color: #b9ba6b;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .register-form {
+            text-align: left;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9fafb;
+            color: #333;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #088bab;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(8, 139, 171, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 15px;
+            background: #088bab;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .register-btn:hover:not(:disabled) {
+            background: #066a7a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(8, 139, 171, 0.3);
+        }
+
+        .register-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #ffffff;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #088bab;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-link a {
+            color: #088bab;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .strength-weak { color: #dc2626; }
+        .strength-medium { color: #d97706; }
+        .strength-strong { color: #059669; }
+
+        /* Responsivo */
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <!-- Logo e Título -->
+        <div class="logo-section">
+            <img src="/img/logo.svg" alt="Logo TechAI Assist">
+        </div>
+        <h1 class="title">Criar Nova Conta</h1>
+        <p class="subtitle">Preencha os dados abaixo para se cadastrar</p>
+
+        <!-- Mensagens -->
+        <div id="errorMessage" class="message error-message"></div>
+        <div id="successMessage" class="message success-message"></div>
+
+        <!-- Formulário de Cadastro -->
+        <form id="registerForm" class="register-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nome">Nome Completo *</label>
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        placeholder="Digite seu nome completo"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="cpf">CPF *</label>
+                    <input
+                        type="text"
+                        id="cpf"
+                        name="cpf"
+                        placeholder="000.000.000-00"
+                        required
+                        maxlength="14"
+                        autocomplete="cpf"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail *</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="seu@email.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="telefone">Telefone *</label>
+                    <input
+                        type="tel"
+                        id="telefone"
+                        name="telefone"
+                        placeholder="(00) 00000-0000"
+                        required
+                        autocomplete="tel"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="usuario">Nome de Usuário *</label>
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Escolha um nome de usuário"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="senha">Senha *</label>
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        placeholder="Digite sua senha"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <div id="passwordStrength" class="password-strength" style="display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmarSenha">Confirmar Senha *</label>
+                    <input
+                        type="password"
+                        id="confirmarSenha"
+                        name="confirmarSenha"
+                        placeholder="Confirme sua senha"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" id="registerBtn" class="register-btn">
+                <span id="btnText">Criar Conta</span>
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <span>Criando conta...</span>
+                </div>
+            </button>
+        </form>
+
+        <!-- Link para voltar ao login -->
+        <div class="back-link">
+            <a href="/login">← Já tem uma conta? Fazer login</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/storage.js"></script>
+    <script>
+        // ========================================
+        // SCRIPT DA PÁGINA DE CADASTRO
+        // ========================================
+
+        // Elementos do DOM
+        const registerForm = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const btnText = document.getElementById('btnText');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        const nomeInput = document.getElementById('nome');
+        const cpfInput = document.getElementById('cpf');
+        const emailInput = document.getElementById('email');
+        const telefoneInput = document.getElementById('telefone');
+        const usuarioInput = document.getElementById('usuario');
+        const senhaInput = document.getElementById('senha');
+        const confirmarSenhaInput = document.getElementById('confirmarSenha');
+        const passwordStrength = document.getElementById('passwordStrength');
+
+        // ============================
+        // FUNÇÕES DE VALIDAÇÃO
+        // ============================
+
+        /**
+         * Valida CPF
+         * @param {string} cpf - CPF a ser validado
+         * @returns {boolean} True se válido
+         */
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/[^\d]/g, '');
+            if (cpf.length !== 11) return false;
+
+            // Verifica se todos os dígitos são iguais
+            if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+            // Calcula primeiro dígito verificador
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(cpf.charAt(i)) * (10 - i);
+            }
+            let resto = soma % 11;
+            let digito1 = resto < 2 ? 0 : 11 - resto;
+
+            // Calcula segundo dígito verificador
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            resto = soma % 11;
+            let digito2 = resto < 2 ? 0 : 11 - resto;
+
+            return parseInt(cpf.charAt(9)) === digito1 && parseInt(cpf.charAt(10)) === digito2;
+        }
+
+        /**
+         * Formata CPF
+         * @param {string} value - Valor do input
+         * @returns {string} CPF formatado
+         */
+        function formatarCPF(value) {
+            value = value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            }
+            return value;
+        }
+
+        /**
+         * Formata telefone
+         * @param {string} value - Valor do input
+         * @returns {string} Telefone formatado
+         */
+        function formatarTelefone(value) {
+            value = value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                if (value.length <= 10) {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{4})(\d{4})$/, '$1-$2');
+                } else {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{5})(\d{4})$/, '$1-$2');
+                }
+            }
+            return value;
+        }
+
+        /**
+         * Verifica força da senha
+         * @param {string} senha - Senha a ser verificada
+         * @returns {object} Objeto com força e mensagem
+         */
+        function verificarForcaSenha(senha) {
+            let forca = 0;
+            let mensagens = [];
+
+            if (senha.length >= 8) forca++;
+            else mensagens.push('Mínimo 8 caracteres');
+
+            if (/[a-z]/.test(senha)) forca++;
+            else mensagens.push('Letra minúscula');
+
+            if (/[A-Z]/.test(senha)) forca++;
+            else mensagens.push('Letra maiúscula');
+
+            if (/[0-9]/.test(senha)) forca++;
+            else mensagens.push('Número');
+
+            if (/[^A-Za-z0-9]/.test(senha)) forca++;
+            else mensagens.push('Caractere especial');
+
+            let nivel = forca <= 2 ? 'weak' : forca <= 3 ? 'medium' : 'strong';
+            let texto = mensagens.length > 0 ? `Faltando: ${mensagens.join(', ')}` : 'Senha forte';
+
+            return { nivel, texto };
+        }
+
+        /**
+         * Remove classe de erro de todos os inputs
+         */
+        function limparErros() {
+            document.querySelectorAll('input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        // ============================
+        // FUNÇÕES DE INTERFACE
+        // ============================
+
+        /**
+         * Mostra mensagem de erro
+         * @param {string} mensagem - Mensagem a ser exibida
+         */
+        function mostrarErro(mensagem) {
+            errorMessage.textContent = mensagem;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        /**
+         * Mostra mensagem de sucesso
+         * @param {string} mensagem - Mensagem a ser exibida
+         */
+        function mostrarSucesso(mensagem) {
+            successMessage.textContent = mensagem;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        /**
+         * Esconde todas as mensagens
+         */
+        function esconderMensagens() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        /**
+         * Ativa/desativa estado de carregamento
+         * @param {boolean} ativo - Se deve mostrar loading
+         */
+        function toggleLoading(ativo) {
+            if (ativo) {
+                registerBtn.disabled = true;
+                btnText.style.display = 'none';
+                loading.style.display = 'flex';
+            } else {
+                registerBtn.disabled = false;
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        // ============================
+        // EVENTOS DE FORMATAÇÃO
+        // ============================
+
+        // Formatação CPF
+        cpfInput.addEventListener('input', function(e) {
+            const valor = e.target.value;
+            const posicaoCursor = e.target.selectionStart;
+            e.target.value = formatarCPF(valor);
+            e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+        });
+
+        // Formatação telefone
+        telefoneInput.addEventListener('input', function(e) {
+            const valor = e.target.value;
+            const posicaoCursor = e.target.selectionStart;
+            e.target.value = formatarTelefone(valor);
+            e.target.setSelectionRange(posicaoCursor, posicaoCursor);
+        });
+
+        // Verificação força da senha
+        senhaInput.addEventListener('input', function() {
+            const senha = senhaInput.value;
+            if (senha.length > 0) {
+                const { nivel, texto } = verificarForcaSenha(senha);
+                passwordStrength.textContent = texto;
+                passwordStrength.className = `password-strength strength-${nivel}`;
+                passwordStrength.style.display = 'block';
+            } else {
+                passwordStrength.style.display = 'none';
+            }
+        });
+
+        // ============================
+        // EVENTO DE SUBMIT
+        // ============================
+
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Limpa erros anteriores
+            limparErros();
+            esconderMensagens();
+
+            // Pega os valores
+            const dados = {
+                nome: nomeInput.value.trim(),
+                cpf: cpfInput.value.replace(/\D/g, ''),
+                email: emailInput.value.trim(),
+                telefone: telefoneInput.value.replace(/\D/g, ''),
+                usuario: usuarioInput.value.trim(),
+                senha: senhaInput.value,
+                confirmarSenha: confirmarSenhaInput.value
+            };
+
+            // Validações
+            let erros = [];
+            let campoErro = null;
+
+            // Nome
+            if (!dados.nome || dados.nome.length < 3) {
+                erros.push('Nome deve ter pelo menos 3 caracteres');
+                if (!campoErro) campoErro = nomeInput;
+            }
+
+            // CPF
+            if (!dados.cpf || !validarCPF(dados.cpf)) {
+                erros.push('CPF inválido');
+                if (!campoErro) campoErro = cpfInput;
+            }
+
+            // Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!dados.email || !emailRegex.test(dados.email)) {
+                erros.push('E-mail inválido');
+                if (!campoErro) campoErro = emailInput;
+            }
+
+            // Telefone
+            if (!dados.telefone || dados.telefone.length < 10) {
+                erros.push('Telefone deve ter pelo menos 10 dígitos');
+                if (!campoErro) campoErro = telefoneInput;
+            }
+
+            // Usuário
+            if (!dados.usuario || dados.usuario.length < 3) {
+                erros.push('Nome de usuário deve ter pelo menos 3 caracteres');
+                if (!campoErro) campoErro = usuarioInput;
+            }
+
+            // Senha
+            if (!dados.senha || dados.senha.length < 8) {
+                erros.push('Senha deve ter pelo menos 8 caracteres');
+                if (!campoErro) campoErro = senhaInput;
+            }
+
+            // Confirmação de senha
+            if (dados.senha !== dados.confirmarSenha) {
+                erros.push('As senhas não coincidem');
+                if (!campoErro) campoErro = confirmarSenhaInput;
+            }
+
+            // Verifica força da senha
+            const { nivel } = verificarForcaSenha(dados.senha);
+            if (nivel === 'weak') {
+                erros.push('A senha é muito fraca. Adicione maiúsculas, números e caracteres especiais');
+                if (!campoErro) campoErro = senhaInput;
+            }
+
+            // Se há erros, mostra o primeiro
+            if (erros.length > 0) {
+                mostrarErro(erros[0]);
+                if (campoErro) {
+                    campoErro.classList.add('error');
+                    campoErro.focus();
+                }
+                return;
+            }
+
+            // Ativa loading
+            toggleLoading(true);
+
+            try {
+                // TODO: Implementar chamada para API de cadastro
+                // Por enquanto, simula o cadastro
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simula delay
+
+                mostrarSucesso('Conta criada com sucesso! Redirecionando para o login...');
+
+                // Redireciona após 2 segundos
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                mostrarErro(error.message || 'Erro ao criar conta. Tente novamente.');
+                toggleLoading(false);
+            }
+        });
+
+        // ============================
+        // INICIALIZAÇÃO
+        // ============================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Foca no campo nome
+            nomeInput.focus();
+
+            console.log('✅ Página de cadastro carregada!');
+        });
+    </script>
+</body>
+
+</html>

@@ -117,6 +117,10 @@ def create_app():
     def status_os():
         return render_template('status_os.html')
 
+    @app.route('/register')
+    def register():
+        return render_template('register.html')
+
     # Rota para favicon.ico
     @app.route('/favicon.ico')
     def favicon():

@@ -179,13 +179,34 @@
             100% { transform: rotate(360deg); }
         }
 
+        .create-account-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .create-account-link p {
+            color: #ffffff;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .create-account-link a {
+            color: #088bab;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .create-account-link a:hover {
+            text-decoration: underline;
+        }
+
         /* Responsivo */
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
                 margin: 10px;
             }
-            
+
             .login-title {
                 font-size: 24px;
             }
@@ -240,7 +261,10 @@
             </button>
         </form>
 
-        
+        <!-- Link para criar conta -->
+        <div class="create-account-link">
+            <p>Não tem uma conta? <a href="#" id="createAccountLink">Criar nova conta</a></p>
+        </div>
 
         <!-- Rodapé -->
         <div class="login-footer">
@@ -395,33 +419,11 @@
         // FUNÇÕES AUXILIARES
         // ============================
 
-        /**
-         * Preenche automaticamente as credenciais de demo
-         * (Útil para demonstração rápida)
-         */
-        function preencherDemo() {
-            usuarioInput.value = 'admin';
-            senhaInput.value = 'admin123';
-        }
-
-        // Adiciona botão de demo (opcional)
-        const demoBtn = document.createElement('button');
-        demoBtn.type = 'button';
-        demoBtn.textContent = 'Preencher Demo';
-        demoBtn.style.cssText = `
-            background: var(--yellow);
-            color: #92400e;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 10px;
-        `;
-        demoBtn.onclick = preencherDemo;
-        
-        // Adiciona o botão após o formulário
-        loginForm.appendChild(demoBtn);
+        // Função para lidar com o clique no link "Criar nova conta"
+        document.getElementById('createAccountLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/register';
+        });
     </script>
 </body>
 
