@@ -275,8 +275,9 @@ class NotificationManager {
     }
 
     verTodasNotificacoes() {
-        // Por enquanto, apenas fechar o dropdown
-        // Futuramente poderia abrir uma página/modal dedicada
+        // Marcar todas as notificações como lidas
+        this.marcarTodasComoLidas();
+        // Fechar o dropdown
         this.closeDropdown();
     }
 
