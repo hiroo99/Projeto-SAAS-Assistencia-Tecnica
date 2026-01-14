@@ -241,6 +241,200 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
     </div>
   </div>
 </div>
+
+<!-- MODAL VISUALIZAR O.S -->
+<div class="modal" id="modalVisualizarOS">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes da Ordem de Serviço</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <div id="osDetalhes">
+      <!-- Detalhes serão inseridos via JavaScript -->
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button type="button" class="btn btn-primary" onclick="editarOSAtual()">
+        Editar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR O.S -->
+<div class="modal" id="modalEditarOS">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalEditarTitle">Editar Ordem de Serviço</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
+    </div>
+
+    <form id="formEditarOS">
+      <input type="hidden" id="editOsId" name="id" />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editNumeroOS">Número da O.S</label>
+          <input
+            type="text"
+            id="editNumeroOS"
+            name="numeroOS"
+            placeholder="Auto-gerado"
+            readonly
+          />
+        </div>
+        <div class="form-group">
+          <label for="editPrioridade">Prioridade *</label>
+          <select id="editPrioridade" name="prioridade" required>
+            <option value="">Selecione...</option>
+            <option value="baixa">Baixa</option>
+            <option value="normal" selected>Normal</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editCliente">Cliente *</label>
+        <select id="editCliente" name="clienteId" required>
+          <option value="">Selecione o cliente...</option>
+          <!-- Opções serão preenchidas via JavaScript -->
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editTipoAparelho">Tipo de Aparelho *</label>
+          <select id="editTipoAparelho" name="tipoAparelho" required>
+            <option value="">Selecione...</option>
+            <option value="smartphone">Smartphone</option>
+            <option value="tablet">Tablet</option>
+            <option value="notebook">Notebook</option>
+            <option value="desktop">Desktop</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editMarcaModelo">Marca/Modelo *</label>
+          <input
+            type="text"
+            id="editMarcaModelo"
+            name="marcaModelo"
+            placeholder="Ex: iPhone 12 Pro"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editImeiSerial">IMEI/Serial</label>
+          <input
+            type="text"
+            id="editImeiSerial"
+            name="imeiSerial"
+            placeholder="Número de série"
+          />
+        </div>
+        <div class="form-group">
+          <label for="editCorAparelho">Cor</label>
+          <input
+            type="text"
+            id="editCorAparelho"
+            name="corAparelho"
+            placeholder="Ex: Preto, Branco"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editProblemaRelatado">Problema Relatado *</label>
+        <textarea
+          id="editProblemaRelatado"
+          name="problemaRelatado"
+          rows="4"
+          placeholder="Descreva o problema reportado pelo cliente"
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <label for="editDiagnosticoTecnico">Pré-diagnóstico</label>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnGerarDiagnosticoEdit"
+            onclick="gerarDiagnosticoAIEdit()"
+            style="font-size: 12px; padding: 6px 12px"
+          >
+            🧠 Diagnóstico Preview
+          </button>
+        </div>
+        <textarea
+          id="editDiagnosticoTecnico"
+          name="diagnosticoTecnico"
+          rows="3"
+          placeholder="Pré-diagnóstico gerado pela IA ou realizado pelo técnico"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPrazoEstimado">Prazo Estimado (dias) *</label>
+          <input
+            type="number"
+            id="editPrazoEstimado"
+            name="prazoEstimado"
+            value="3"
+            min="1"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="editValorOrcamento">Valor do Orçamento</label>
+          <input
+            type="text"
+            id="editValorOrcamento"
+            name="valorOrcamento"
+            placeholder="R$ 0,00"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="editObservacoes">Observações</label>
+        <textarea
+          id="editObservacoes"
+          name="observacoes"
+          rows="3"
+          placeholder="Informações adicionais sobre a O.S"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" id="submitEditarBtn">
+          Atualizar O.S
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %} {% block extra_scripts %}
 <script src="/js/clientes.js"></script>
 <script src="/js/estoque.js"></script>
@@ -510,17 +704,376 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   }
 
   /**
-   * Visualiza OS
+   * Visualiza OS - abre modal na mesma página
    */
   function visualizarOS(id) {
-    window.location.href = `/os#view=${id}`;
+    const os = osEmMemoria.find((o) => o.id === parseInt(id));
+    if (!os) {
+      console.error("OS não encontrada:", id);
+      return;
+    }
+
+    osAtual = os;
+    const modal = document.getElementById("modalVisualizarOS");
+    const detalhes = document.getElementById("osDetalhes");
+
+    const dataCriacao = new Date(os.dataCriacao);
+    const prazoLimite = new Date(dataCriacao);
+    prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+    const hoje = new Date();
+    const atrasada =
+      hoje > prazoLimite &&
+      os.status !== "entregue" &&
+      os.status !== "cancelado";
+
+    detalhes.innerHTML = `
+                <div class="os-details">
+                    <div class="os-header">
+                        <div class="os-number">${os.numeroOS}</div>
+                        <div class="os-status">
+                            <span class="status-badge ${
+                              os.status
+                            }">${getStatusText(os.status)}</span>
+                            <span class="prioridade-badge ${
+                              os.prioridade || "normal"
+                            }">${getPrioridadeText(
+      os.prioridade || "normal"
+    )}</span>
+                        </div>
+                    </div>
+
+                    <div class="os-details-grid">
+                        <div class="detail-item">
+                            <label>Cliente:</label>
+                            <span>${os.clienteNome}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Tipo de Aparelho:</label>
+                            <span>${os.tipoAparelho}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Marca/Modelo:</label>
+                            <span>${os.marcaModelo}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>IMEI/Serial:</label>
+                            <span>${os.imeiSerial || "Não informado"}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Cor:</label>
+                            <span>${os.corAparelho || "Não informado"}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Data de Criação:</label>
+                            <span>${formatarDataHora(os.dataCriacao)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Prazo Estimado:</label>
+                            <span>${os.prazoEstimado} dias</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Prazo Limite:</label>
+                            <span class="${
+                              atrasada ? "atrasada" : ""
+                            }">${formatarData(prazoLimite)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Valor do Orçamento:</label>
+                            <span>${
+                              os.valorOrcamento
+                                ? "R$ " +
+                                  parseFloat(os.valorOrcamento).toFixed(2)
+                                : "Não informado"
+                            }</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <label>Problema Relatado:</label>
+                            <span>${os.problemaRelatado}</span>
+                        </div>
+                        ${
+                          os.diagnosticoTecnico
+                            ? `
+                        <div class="detail-item full-width">
+                            <label>Diagnóstico Técnico:</label>
+                            <span>${os.diagnosticoTecnico}</span>
+                        </div>
+                        `
+                            : ""
+                        }
+                        ${
+                          os.observacoes
+                            ? `
+                        <div class="detail-item full-width">
+                            <label>Observações:</label>
+                            <span>${os.observacoes}</span>
+                        </div>
+                        `
+                            : ""
+                        }
+                    </div>
+                </div>
+            `;
+
+    modal.classList.add("active");
   }
 
   /**
-   * Edita OS
+   * Edita OS - abre modal na mesma página
    */
   function editarOS(id) {
-    window.location.href = `/os#edit=${id}`;
+    const os = osEmMemoria.find((o) => o.id === parseInt(id));
+    if (!os) {
+      console.error("OS não encontrada:", id);
+      return;
+    }
+
+    const modal = document.getElementById("modalEditarOS");
+    const modalTitle = document.getElementById("modalEditarTitle");
+
+    modalTitle.textContent = "Editar Ordem de Serviço";
+
+    // Preenche o formulário com os dados da OS
+    preencherFormularioEdicao(os);
+
+    // Carrega clientes no select
+    carregarClientesSelectEdicao();
+
+    // Configura event listener do formulário
+    configurarEventListenerFormularioEdicao();
+
+    modal.classList.add("active");
+  }
+
+  /**
+   * Edita a OS atual (do modal de visualização)
+   */
+  function editarOSAtual() {
+    if (osAtual) {
+      fecharModal();
+      setTimeout(() => {
+        editarOS(osAtual.id);
+      }, 300);
+    }
+  }
+
+  // Variável para armazenar a OS atual sendo visualizada
+  let osAtual = null;
+
+  // ============================
+  // FUNÇÕES AUXILIARES PARA MODAIS
+  // ============================
+
+  /**
+   * Retorna texto da prioridade
+   */
+  function getPrioridadeText(prioridade) {
+    const prioridadeMap = {
+      baixa: "Baixa",
+      normal: "Normal",
+      alta: "Alta",
+      urgente: "Urgente",
+    };
+    return prioridadeMap[prioridade] || "Normal";
+  }
+
+  /**
+   * Formata data para exibição
+   */
+  function formatarData(data) {
+    if (!data) return "N/A";
+    const d = new Date(data);
+    return d.toLocaleDateString("pt-BR");
+  }
+
+  /**
+   * Formata data e hora para exibição
+   */
+  function formatarDataHora(data) {
+    if (!data) return "N/A";
+    const d = new Date(data);
+    return d.toLocaleString("pt-BR");
+  }
+
+  /**
+   * Carrega clientes no select do modal de edição
+   */
+  function carregarClientesSelectEdicao() {
+    const selectCliente = document.getElementById("editCliente");
+    selectCliente.innerHTML =
+      '<option value="">Selecione o cliente...</option>';
+
+    clientesEmMemoria.forEach((cliente) => {
+      const option = document.createElement("option");
+      option.value = cliente.id;
+      option.textContent = cliente.nome;
+      selectCliente.appendChild(option);
+    });
+  }
+
+  /**
+   * Preenche formulário de edição com dados da OS
+   */
+  function preencherFormularioEdicao(os) {
+    document.getElementById("editOsId").value = os.id;
+    document.getElementById("editNumeroOS").value = os.numeroOS;
+    document.getElementById("editPrioridade").value = os.prioridade || "normal";
+    document.getElementById("editCliente").value = os.clienteId;
+    document.getElementById("editTipoAparelho").value = os.tipoAparelho;
+    document.getElementById("editMarcaModelo").value = os.marcaModelo;
+    document.getElementById("editImeiSerial").value = os.imeiSerial || "";
+    document.getElementById("editCorAparelho").value = os.corAparelho || "";
+    document.getElementById("editProblemaRelatado").value = os.problemaRelatado;
+    document.getElementById("editDiagnosticoTecnico").value =
+      os.diagnosticoTecnico || "";
+    document.getElementById("editPrazoEstimado").value = os.prazoEstimado || 3;
+    document.getElementById("editValorOrcamento").value =
+      os.valorOrcamento || "";
+    document.getElementById("editObservacoes").value = os.observacoes || "";
+  }
+
+  /**
+   * Atualiza uma OS existente via API
+   */
+  async function atualizarOS(id, dadosAtualizados) {
+    try {
+      const atualizado = await atualizarOSApi(id, dadosAtualizados);
+
+      // Atualiza no array local
+      const indice = osEmMemoria.findIndex((o) => o.id === parseInt(id));
+      if (indice !== -1) {
+        osEmMemoria[indice] = atualizado;
+      }
+
+      console.log("✅ OS atualizada:", atualizado.numeroOS);
+      return true;
+    } catch (e) {
+      console.error("❌ Erro ao atualizar OS:", e);
+      throw e;
+    }
+  }
+
+  /**
+   * Gera diagnóstico com IA para edição
+   */
+  async function gerarDiagnosticoAIEdit() {
+    const btn = document.getElementById("btnGerarDiagnosticoEdit");
+    const tipoAparelho = document
+      .getElementById("editTipoAparelho")
+      .value.trim();
+    const marcaModelo = document.getElementById("editMarcaModelo").value.trim();
+    const problemaRelatado = document
+      .getElementById("editProblemaRelatado")
+      .value.trim();
+    const diagnosticoField = document.getElementById("editDiagnosticoTecnico");
+
+    // Validação
+    if (!tipoAparelho || !marcaModelo || !problemaRelatado) {
+      alert(
+        "Para gerar o diagnóstico, é necessário preencher: Tipo de Aparelho, Marca/Modelo e Problema Relatado."
+      );
+      return;
+    }
+
+    // Desabilita botão durante processamento
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "🧠 Gerando...";
+
+    try {
+      console.log("🤖 Gerando diagnóstico com IA...");
+      const resultado = await gerarDiagnosticoApi({
+        tipoAparelho: tipoAparelho,
+        marcaModelo: marcaModelo,
+        problema: problemaRelatado,
+      });
+
+      if (resultado && resultado.diagnostico) {
+        diagnosticoField.value = resultado.diagnostico;
+        console.log("✅ Diagnóstico gerado com sucesso!");
+        alert("Pré-diagnóstico gerado com sucesso pela IA!");
+      } else {
+        throw new Error("Resposta da IA inválida");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao gerar diagnóstico:", error);
+      alert(
+        "Erro ao gerar diagnóstico com IA. Tente novamente.\n\n" +
+          (error.message || "Erro desconhecido")
+      );
+    } finally {
+      // Reabilita botão
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  }
+
+  /**
+   * Configura event listener do formulário de edição
+   */
+  function configurarEventListenerFormularioEdicao() {
+    const formEditarOS = document.getElementById("formEditarOS");
+    if (!formEditarOS) return;
+
+    // Remove event listener anterior se existir
+    const novoFormEditarOS = formEditarOS.cloneNode(true);
+    formEditarOS.parentNode.replaceChild(novoFormEditarOS, formEditarOS);
+
+    // Adiciona o event listener ao novo formulário
+    novoFormEditarOS.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const dados = Object.fromEntries(formData.entries());
+
+      // Processar campos especiais antes da validação
+      if (dados.valorOrcamento) {
+        // Converter "R$ 9,99" para 9.99
+        dados.valorOrcamento = dados.valorOrcamento
+          .replace("R$ ", "") // Remove "R$ "
+          .replace(".", "") // Remove pontos de milhares
+          .replace(",", "."); // Converte vírgula para ponto
+        dados.valorOrcamento = parseFloat(dados.valorOrcamento) || 0;
+      }
+
+      // Validação
+      const validacao = validarFormularioOS(dados);
+      if (!validacao.valido) {
+        alert("Erro na validação:\n" + validacao.erros.join("\n"));
+        return;
+      }
+
+      const osId = document.getElementById("editOsId").value;
+
+      console.log("🔄 Atualizando OS - ID:", osId, "dados:", dados);
+
+      if (atualizarOS(osId, dados)) {
+        alert("O.S atualizada com sucesso!");
+
+        // Atualiza notificações se disponível
+        if (window.notificationManager) {
+          window.notificationManager.atualizarContador();
+        }
+
+        fecharModal();
+        renderizarTabelaOS(filtroStatusAtual);
+      } else {
+        alert("Erro ao atualizar O.S. Tente novamente.");
+      }
+    });
+
+    // Formatação automática de campos
+    const valorOrcamento = novoFormEditarOS.querySelector(
+      "#editValorOrcamento"
+    );
+    if (valorOrcamento) {
+      valorOrcamento.addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, "");
+        value = (parseInt(value) / 100).toFixed(2);
+        value = value.replace(".", ",");
+        value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        e.target.value = "R$ " + value;
+      });
+    }
   }
 
   /**
