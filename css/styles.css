@@ -379,6 +379,12 @@
             background: #1e293b;
             color: white;
             padding: 20px 0;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            z-index: 85;
         }
 
         .sidebar-section {
@@ -425,6 +431,7 @@
             flex: 1;
             padding: 30px;
             background: var(--bg-secondary);
+            margin-left: 230px;
         }
 
         .page-header {
@@ -1585,6 +1592,10 @@
 
             .sidebar.active {
                 left: 0;
+            }
+
+            .content {
+                margin-left: 0;
             }
 
             .quick-actions {
