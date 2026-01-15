@@ -111,13 +111,6 @@ async function atualizarClienteApi(id, dados) {
   });
 }
 
-async function deletarClienteApi(id) {
-  await apiRequest(`/api/clientes/${id}`, {
-    method: "DELETE",
-  });
-  return true;
-}
-
 // ========================================
 // ESTOQUE - Funções específicas
 // ========================================
@@ -167,13 +160,6 @@ async function atualizarOSApi(id, dados) {
     method: "PUT",
     body: JSON.stringify(dados),
   });
-}
-
-async function deletarOSApi(id) {
-  await apiRequest(`/api/os/${id}`, {
-    method: "DELETE",
-  });
-  return true;
 }
 
 // ========================================

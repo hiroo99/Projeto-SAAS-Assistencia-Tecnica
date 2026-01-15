@@ -112,6 +112,7 @@ def criar_os():
     # Gera resumo automático usando IA em background (não bloqueia resposta)
     try:
         from threading import Thread
+
         def gerar_resumo_background():
             try:
                 resumo_ia = gerar_resumo(data["problemaRelatado"])
@@ -121,7 +122,9 @@ def criar_os():
                     db.session.commit()
                 print(f"✅ Resumo IA gerado para OS {os_obj.numero_os}")
             except Exception as e:
-                print(f"Aviso: Não foi possível gerar resumo automático para OS {os_obj.numero_os}: {e}")
+                print(
+                    f"Aviso: Não foi possível gerar resumo automático para OS {os_obj.numero_os}: {e}"
+                )
 
         # Executa em thread separada para não bloquear resposta
         thread = Thread(target=gerar_resumo_background, daemon=True)
@@ -145,6 +148,10 @@ def obter_os(os_id: int):
 def atualizar_os(os_id: int):
     os_obj = OrdemServico.query.get_or_404(os_id)
     data = request.get_json() or {}
+
+    # Verificar se a OS já foi entregue (status "entregue") - não permite mais alterações
+    if os_obj.status == "entregue":
+        abort(400, description="Ordens de serviço entregues não podem ser alteradas")
 
     # Verificar se o status está sendo alterado para "pronto"
     status_anterior = os_obj.status
@@ -189,15 +196,6 @@ def atualizar_os(os_id: int):
             db.session.rollback()  # Não afetar a atualização da OS
 
     return jsonify(os_to_dict(os_obj))
-
-
-@bp.delete("/<int:os_id>")
-@login_required
-def deletar_os(os_id: int):
-    os_obj = OrdemServico.query.get_or_404(os_id)
-    db.session.delete(os_obj)
-    db.session.commit()
-    return "", 204
 
 
 @bp.get("/status/<numero_os>")

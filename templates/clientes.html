@@ -1,462 +1,528 @@
-{% extends "base.html" %}
-
-{% block title %}Clientes - TechAI Assist{% endblock %}
-
-{% set active_page = 'clientes' %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Clientes - TechAI Assist{% endblock
+%} {% set active_page = 'clientes' %} {% block content %}
 <div class="page-header">
-    <div class="page-title">
-        <h1>Clientes</h1>
-    </div>
-    <div class="header-actions-btn">
-        <button class="export-card" onclick="exportarClientes()">
-            📊 Exportar
-        </button>
-        <button class="btn btn-primary" onclick="abrirModal('novoCliente')">
-            ➕ Novo Cliente
-        </button>
-    </div>
+  <div class="page-title">
+    <h1>Clientes</h1>
+  </div>
+  <div class="header-actions-btn">
+    <button class="export-card" onclick="exportarClientes()">
+      📊 Exportar
+    </button>
+    <button class="btn btn-primary" onclick="abrirModal('novoCliente')">
+      ➕ Novo Cliente
+    </button>
+  </div>
 </div>
 
 <!-- CARDS DE ESTATÍSTICAS -->
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon blue">
-            👥
-        </div>
-        <div class="stat-info">
-            <h3 id="totalClientes">0</h3>
-            <p>Total de Clientes</p>
-        </div>
+  <div class="stat-card">
+    <div class="stat-icon blue">👥</div>
+    <div class="stat-info">
+      <h3 id="totalClientes">0</h3>
+      <p>Total de Clientes</p>
     </div>
+  </div>
 
-    <div class="stat-card">
-        <div class="stat-icon green">
-            📞
-        </div>
-        <div class="stat-info">
-            <h3 id="clientesAtivos">0</h3>
-            <p>Clientes Ativos</p>
-        </div>
+  <div class="stat-card">
+    <div class="stat-icon green">📞</div>
+    <div class="stat-info">
+      <h3 id="clientesAtivos">0</h3>
+      <p>Clientes Ativos</p>
     </div>
+  </div>
 
-    <div class="stat-card">
-        <div class="stat-icon yellow">
-            📧
-        </div>
-        <div class="stat-info">
-            <h3 id="comEmail">0</h3>
-            <p>Com Email</p>
-        </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow">📧</div>
+    <div class="stat-info">
+      <h3 id="comEmail">0</h3>
+      <p>Com Email</p>
     </div>
+  </div>
 
-    <div class="stat-card">
-        <div class="stat-icon red">
-            ⚠️
-        </div>
-        <div class="stat-info">
-            <h3 id="semTelefone">0</h3>
-            <p>Sem Telefone</p>
-        </div>
+  <div class="stat-card">
+    <div class="stat-icon red">⚠️</div>
+    <div class="stat-info">
+      <h3 id="semTelefone">0</h3>
+      <p>Sem Telefone</p>
     </div>
+  </div>
 </div>
 
 <!-- FILTROS -->
 <div class="filters-section">
-    <div class="filter-controls">
-        <select id="filtroTipo" class="filter-btn">
-            <option value="">Todos os Tipos</option>
-            <option value="pessoa_fisica">Pessoa Física</option>
-            <option value="pessoa_juridica">Pessoa Jurídica</option>
-        </select>
-        <button class="filter-btn active" data-filtro="todos">Todos</button>
-        <button class="filter-btn" data-filtro="ativos">Ativos</button>
-        <button class="filter-btn" data-filtro="inativos">Inativos</button>
-    </div>
-    <div class="results-info">
-        <span id="resultadosInfo">Mostrando 0 clientes</span>
-    </div>
+  <div class="filter-controls">
+    <select id="filtroTipo" class="filter-btn">
+      <option value="">Todos os Tipos</option>
+      <option value="pessoa_fisica">Pessoa Física</option>
+      <option value="pessoa_juridica">Pessoa Jurídica</option>
+    </select>
+    <button class="filter-btn active" data-filtro="todos">Todos</button>
+    <button class="filter-btn" data-filtro="ativos">Ativos</button>
+    <button class="filter-btn" data-filtro="inativos">Inativos</button>
+  </div>
+  <div class="results-info">
+    <span id="resultadosInfo">Mostrando 0 clientes</span>
+  </div>
 </div>
 
 <!-- TABELA DE CLIENTES -->
 <div class="clients-section">
-    <div class="section-header">
-        <h2>Lista de Clientes</h2>
-        <div class="table-actions">
-            <button class="btn btn-secondary" onclick="limparFiltros()">
-                🔄 Limpar Filtros
-            </button>
-        </div>
+  <div class="section-header">
+    <h2>Lista de Clientes</h2>
+    <div class="table-actions">
+      <button class="btn btn-secondary" onclick="limparFiltros()">
+        🔄 Limpar Filtros
+      </button>
     </div>
+  </div>
 
-    <div class="table-container">
-        <table class="clients-table" id="clientsTable">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>CPF/CNPJ</th>
-                    <th>Telefone</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Cadastro</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="clientsTableBody">
-                <!-- Dados serão inseridos via JavaScript -->
-            </tbody>
-        </table>
-    </div>
+  <div class="table-container">
+    <table class="clients-table" id="clientsTable">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CPF/CNPJ</th>
+          <th>Telefone</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Cadastro</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="clientsTableBody">
+        <!-- Dados serão inseridos via JavaScript -->
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Paginação -->
-    <div class="pagination" id="pagination">
-        <!-- Paginação será inserida via JavaScript -->
-    </div>
+  <!-- Paginação -->
+  <div class="pagination" id="pagination">
+    <!-- Paginação será inserida via JavaScript -->
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_body %}
+{% endblock %} {% block extra_body %}
 <!-- MODAL NOVO/EDITAR CLIENTE -->
 <div class="modal" id="modalCliente">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle">Novo Cliente</h2>
-            <button class="close-modal" onclick="fecharModal()">×</button>
-        </div>
-
-        <form id="formCliente">
-            <input type="hidden" id="clienteId" name="id">
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="nome">Nome Completo *</label>
-                    <input type="text" id="nome" name="nome" placeholder="Nome do cliente" required>
-                </div>
-                <div class="form-group">
-                    <label for="tipoPessoa">Tipo de Pessoa *</label>
-                    <select id="tipoPessoa" name="tipoPessoa" required>
-                        <option value="">Selecione...</option>
-                        <option value="pessoa_fisica">Pessoa Física</option>
-                        <option value="pessoa_juridica">Pessoa Jurídica</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="cpfCnpj">CPF/CNPJ *</label>
-                <input type="text" id="cpfCnpj" name="cpfCnpj" placeholder="000.000.000-00" required>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="telefone">Telefone *</label>
-                    <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="cliente@email.com">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="endereco">Endereço</label>
-                <input type="text" id="endereco" name="endereco" placeholder="Rua, número, bairro, cidade">
-            </div>
-
-            <div class="form-group">
-                <label for="observacoes">Observações</label>
-                <textarea id="observacoes" name="observacoes" rows="3" placeholder="Informações adicionais sobre o cliente"></textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary" id="submitBtn">Salvar Cliente</button>
-            </div>
-        </form>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Novo Cliente</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
     </div>
+
+    <form id="formCliente">
+      <input type="hidden" id="clienteId" name="id" />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome Completo *</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            placeholder="Nome do cliente"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="tipoPessoa">Tipo de Pessoa *</label>
+          <select id="tipoPessoa" name="tipoPessoa" required>
+            <option value="">Selecione...</option>
+            <option value="pessoa_fisica">Pessoa Física</option>
+            <option value="pessoa_juridica">Pessoa Jurídica</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cpfCnpj">CPF/CNPJ *</label>
+        <input
+          type="text"
+          id="cpfCnpj"
+          name="cpfCnpj"
+          placeholder="000.000.000-00"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="telefone">Telefone *</label>
+          <input
+            type="tel"
+            id="telefone"
+            name="telefone"
+            placeholder="(00) 00000-0000"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="cliente@email.com"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="endereco">Endereço</label>
+        <input
+          type="text"
+          id="endereco"
+          name="endereco"
+          placeholder="Rua, número, bairro, cidade"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="observacoes">Observações</label>
+        <textarea
+          id="observacoes"
+          name="observacoes"
+          rows="3"
+          placeholder="Informações adicionais sobre o cliente"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          Salvar Cliente
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- MODAL VISUALIZAR CLIENTE -->
 <div class="modal" id="modalVisualizar">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Detalhes do Cliente</h2>
-            <button class="close-modal" onclick="fecharModal()">×</button>
-        </div>
-
-        <div id="clienteDetalhes">
-            <!-- Detalhes serão inseridos via JavaScript -->
-        </div>
-
-        <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="fecharModal()">Fechar</button>
-            <button type="button" class="btn btn-primary" onclick="editarClienteAtual()">Editar</button>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes do Cliente</h2>
+      <button class="close-modal" onclick="fecharModal()">×</button>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_scripts %}
+    <div id="clienteDetalhes">
+      <!-- Detalhes serão inseridos via JavaScript -->
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+        Fechar
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="editarClienteAtual()"
+      >
+        Editar
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_scripts %}
 <script src="/js/clientes.js"></script>
 <script>
-    // ========================================
-    // SCRIPT DA PÁGINA DE CLIENTES
-    // ========================================
+  // ========================================
+  // SCRIPT DA PÁGINA DE CLIENTES
+  // ========================================
 
-    // Variáveis globais
-    let clientesFiltrados = [];
-    let clienteAtual = null;
-    let paginaAtual = 1;
-    const itensPorPagina = 10;
+  // Variáveis globais
+  let clientesFiltrados = [];
+  let clienteAtual = null;
+  let paginaAtual = 1;
+  const itensPorPagina = 10;
 
-    // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
-    let searchInput, clientsTableBody, pagination, totalClientes, clientesAtivos, comEmail, semTelefone, resultadosInfo;
+  // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
+  let searchInput,
+    clientsTableBody,
+    pagination,
+    totalClientes,
+    clientesAtivos,
+    comEmail,
+    semTelefone,
+    resultadosInfo;
 
-    // ============================
-    // FUNÇÕES DE INTERFACE
-    // ============================
+  // ============================
+  // FUNÇÕES DE INTERFACE
+  // ============================
 
-    /**
-     * Atualiza as estatísticas na tela
-     */
-    function atualizarEstatisticas() {
-        const total = clientesEmMemoria.length;
-        const ativos = clientesEmMemoria.filter(c => c.status !== 'inativo').length;
-        const comEmailCount = clientesEmMemoria.filter(c => c.email && c.email.trim() !== '').length;
-        const semTelefoneCount = clientesEmMemoria.filter(c => !c.telefone || c.telefone.trim() === '').length;
+  /**
+   * Atualiza as estatísticas na tela
+   */
+  function atualizarEstatisticas() {
+    const total = clientesEmMemoria.length;
+    const ativos = clientesEmMemoria.filter(
+      (c) => c.status !== "inativo"
+    ).length;
+    const comEmailCount = clientesEmMemoria.filter(
+      (c) => c.email && c.email.trim() !== ""
+    ).length;
+    const semTelefoneCount = clientesEmMemoria.filter(
+      (c) => !c.telefone || c.telefone.trim() === ""
+    ).length;
 
-        totalClientes.textContent = total;
-        clientesAtivos.textContent = ativos;
-        comEmail.textContent = comEmailCount;
-        semTelefone.textContent = semTelefoneCount;
-    }
+    totalClientes.textContent = total;
+    clientesAtivos.textContent = ativos;
+    comEmail.textContent = comEmailCount;
+    semTelefone.textContent = semTelefoneCount;
+  }
 
-    /**
-     * Renderiza a tabela de clientes
-     */
-    function renderizarTabela() {
-        const inicio = (paginaAtual - 1) * itensPorPagina;
-        const fim = inicio + itensPorPagina;
-        const clientesPagina = clientesFiltrados.slice(inicio, fim);
+  /**
+   * Renderiza a tabela de clientes
+   */
+  function renderizarTabela() {
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const clientesPagina = clientesFiltrados.slice(inicio, fim);
 
-        clientsTableBody.innerHTML = '';
+    clientsTableBody.innerHTML = "";
 
-        if (clientesPagina.length === 0) {
-            clientsTableBody.innerHTML = `
+    if (clientesPagina.length === 0) {
+      clientsTableBody.innerHTML = `
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-medium);">
                         <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
                         <div>Nenhum cliente encontrado</div>
                         <div style="font-size: 14px; margin-top: 10px;">
-                            ${clientesEmMemoria.length === 0 ? 'Cadastre seu primeiro cliente!' : 'Tente ajustar os filtros de busca.'}
+                            ${
+                              clientesEmMemoria.length === 0
+                                ? "Cadastre seu primeiro cliente!"
+                                : "Tente ajustar os filtros de busca."
+                            }
                         </div>
                     </td>
                 </tr>
             `;
-            return;
-        }
+      return;
+    }
 
-        clientesPagina.forEach(cliente => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+    clientesPagina.forEach((cliente) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
                 <td>
                     <div class="client-info">
-                        <div class="client-avatar">${cliente.nome.charAt(0).toUpperCase()}</div>
+                        <div class="client-avatar">${cliente.nome
+                          .charAt(0)
+                          .toUpperCase()}</div>
                         <span>${cliente.nome}</span>
                     </div>
                 </td>
                 <td>${cliente.cpfCnpj}</td>
-                <td>${cliente.telefone || '-'}</td>
-                <td>${cliente.email || '-'}</td>
-                <td><span class="status-badge ${cliente.status || 'ativo'}">${cliente.status || 'Ativo'}</span></td>
+                <td>${cliente.telefone || "-"}</td>
+                <td>${cliente.email || "-"}</td>
+                <td><span class="status-badge ${cliente.status || "ativo"}">${
+        cliente.status || "Ativo"
+      }</span></td>
                 <td>${formatarData(cliente.dataCadastro)}</td>
                 <td>
                     <div class="actions-cell">
-                        <button class="action-btn-small btn-view" onclick="visualizarCliente('${cliente.id}')" title="Visualizar">
+                        <button class="action-btn-small btn-view" onclick="visualizarCliente('${
+                          cliente.id
+                        }')" title="Visualizar">
                             👁️
                         </button>
-                        <button class="action-btn-small btn-edit" onclick="editarCliente('${cliente.id}')" title="Editar">
+                        <button class="action-btn-small btn-edit" onclick="editarCliente('${
+                          cliente.id
+                        }')" title="Editar">
                             ✏️
-                        </button>
-                        <button class="action-btn-small btn-delete" onclick="excluirCliente('${cliente.id}')" title="Excluir">
-                            🗑️
                         </button>
                     </div>
                 </td>
             `;
-            clientsTableBody.appendChild(row);
-        });
+      clientsTableBody.appendChild(row);
+    });
 
-        // Atualiza informações de resultados
-        resultadosInfo.textContent = `Mostrando ${clientesPagina.length} de ${clientesFiltrados.length} clientes`;
+    // Atualiza informações de resultados
+    resultadosInfo.textContent = `Mostrando ${clientesPagina.length} de ${clientesFiltrados.length} clientes`;
+  }
+
+  /**
+   * Renderiza a paginação
+   */
+  function renderizarPaginacao() {
+    const totalPaginas = Math.ceil(clientesFiltrados.length / itensPorPagina);
+
+    if (totalPaginas <= 1) {
+      pagination.innerHTML = "";
+      return;
     }
 
-    /**
-     * Renderiza a paginação
-     */
-    function renderizarPaginacao() {
-        const totalPaginas = Math.ceil(clientesFiltrados.length / itensPorPagina);
+    let paginacaoHTML = '<div class="pagination-controls">';
 
-        if (totalPaginas <= 1) {
-            pagination.innerHTML = '';
-            return;
-        }
-
-        let paginacaoHTML = '<div class="pagination-controls">';
-
-        // Botão anterior
-        if (paginaAtual > 1) {
-            paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${paginaAtual - 1})">‹ Anterior</button>`;
-        }
-
-        // Números das páginas
-        for (let i = 1; i <= totalPaginas; i++) {
-            if (i === paginaAtual) {
-                paginacaoHTML += `<button class="pagination-btn active">${i}</button>`;
-            } else {
-                paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${i})">${i}</button>`;
-            }
-        }
-
-        // Botão próximo
-        if (paginaAtual < totalPaginas) {
-            paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${paginaAtual + 1})">Próximo ›</button>`;
-        }
-
-        paginacaoHTML += '</div>';
-        pagination.innerHTML = paginacaoHTML;
+    // Botão anterior
+    if (paginaAtual > 1) {
+      paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${
+        paginaAtual - 1
+      })">‹ Anterior</button>`;
     }
 
-    /**
-     * Vai para uma página específica
-     */
-    function irParaPagina(pagina) {
-        paginaAtual = pagina;
-        renderizarTabela();
-        renderizarPaginacao();
+    // Números das páginas
+    for (let i = 1; i <= totalPaginas; i++) {
+      if (i === paginaAtual) {
+        paginacaoHTML += `<button class="pagination-btn active">${i}</button>`;
+      } else {
+        paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${i})">${i}</button>`;
+      }
     }
 
-    /**
-     * Aplica filtros de busca
-     */
-    function aplicarFiltros() {
-        const termoBusca = searchInput.value.trim();
-        const filtroTipo = document.getElementById('filtroTipo').value;
-        const filtroStatus = document.querySelector('.filter-btn.active[data-filtro]')?.getAttribute('data-filtro') || 'todos';
-
-        // Busca por termo
-        let clientes = buscarClientes(termoBusca);
-
-        // Filtro por tipo de pessoa
-        if (filtroTipo) {
-            clientes = clientes.filter(c => c.tipoPessoa === filtroTipo);
-        }
-
-        // Filtro por status
-        if (filtroStatus !== 'todos') {
-            if (filtroStatus === 'ativos') {
-                clientes = clientes.filter(c => c.status !== 'inativo');
-            } else if (filtroStatus === 'inativos') {
-                clientes = clientes.filter(c => c.status === 'inativo');
-            }
-        }
-
-        clientesFiltrados = clientes;
-        paginaAtual = 1;
-        renderizarTabela();
-        renderizarPaginacao();
+    // Botão próximo
+    if (paginaAtual < totalPaginas) {
+      paginacaoHTML += `<button class="pagination-btn" onclick="irParaPagina(${
+        paginaAtual + 1
+      })">Próximo ›</button>`;
     }
 
-    /**
-     * Limpa todos os filtros
-     */
-    function limparFiltros() {
-        searchInput.value = '';
-        document.getElementById('filtroTipo').value = '';
-        document.querySelectorAll('.filter-btn[data-filtro]').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector('.filter-btn[data-filtro="todos"]').classList.add('active');
+    paginacaoHTML += "</div>";
+    pagination.innerHTML = paginacaoHTML;
+  }
 
-        aplicarFiltros();
+  /**
+   * Vai para uma página específica
+   */
+  function irParaPagina(pagina) {
+    paginaAtual = pagina;
+    renderizarTabela();
+    renderizarPaginacao();
+  }
+
+  /**
+   * Aplica filtros de busca
+   */
+  function aplicarFiltros() {
+    const termoBusca = searchInput.value.trim();
+    const filtroTipo = document.getElementById("filtroTipo").value;
+    const filtroStatus =
+      document
+        .querySelector(".filter-btn.active[data-filtro]")
+        ?.getAttribute("data-filtro") || "todos";
+
+    // Busca por termo
+    let clientes = buscarClientes(termoBusca);
+
+    // Filtro por tipo de pessoa
+    if (filtroTipo) {
+      clientes = clientes.filter((c) => c.tipoPessoa === filtroTipo);
     }
 
-    // ============================
-    // FUNÇÕES DE MODAL
-    // ============================
-
-    /**
-     * Abre modal para novo cliente ou edição
-     */
-    function abrirModal(tipo, clienteId = null) {
-        const modal = document.getElementById('modalCliente');
-        const modalTitle = document.getElementById('modalTitle');
-        const form = document.getElementById('formCliente');
-        const submitBtn = document.getElementById('submitBtn');
-
-        if (tipo === 'novoCliente') {
-            modalTitle.textContent = 'Novo Cliente';
-            form.reset();
-            document.getElementById('clienteId').value = '';
-            submitBtn.textContent = 'Cadastrar Cliente';
-        } else if (tipo === 'editarCliente' && clienteId) {
-            const cliente = buscarClientePorId(clienteId);
-            if (cliente) {
-                modalTitle.textContent = 'Editar Cliente';
-                preencherFormulario(cliente);
-                submitBtn.textContent = 'Atualizar Cliente';
-            }
-        }
-
-        modal.classList.add('active');
+    // Filtro por status
+    if (filtroStatus !== "todos") {
+      if (filtroStatus === "ativos") {
+        clientes = clientes.filter((c) => c.status !== "inativo");
+      } else if (filtroStatus === "inativos") {
+        clientes = clientes.filter((c) => c.status === "inativo");
+      }
     }
 
-    /**
-     * Fecha todos os modais
-     */
-    function fecharModal() {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.classList.remove('active');
-        });
+    clientesFiltrados = clientes;
+    paginaAtual = 1;
+    renderizarTabela();
+    renderizarPaginacao();
+  }
+
+  /**
+   * Limpa todos os filtros
+   */
+  function limparFiltros() {
+    searchInput.value = "";
+    document.getElementById("filtroTipo").value = "";
+    document.querySelectorAll(".filter-btn[data-filtro]").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    document
+      .querySelector('.filter-btn[data-filtro="todos"]')
+      .classList.add("active");
+
+    aplicarFiltros();
+  }
+
+  // ============================
+  // FUNÇÕES DE MODAL
+  // ============================
+
+  /**
+   * Abre modal para novo cliente ou edição
+   */
+  function abrirModal(tipo, clienteId = null) {
+    const modal = document.getElementById("modalCliente");
+    const modalTitle = document.getElementById("modalTitle");
+    const form = document.getElementById("formCliente");
+    const submitBtn = document.getElementById("submitBtn");
+
+    if (tipo === "novoCliente") {
+      modalTitle.textContent = "Novo Cliente";
+      form.reset();
+      document.getElementById("clienteId").value = "";
+      submitBtn.textContent = "Cadastrar Cliente";
+    } else if (tipo === "editarCliente" && clienteId) {
+      const cliente = buscarClientePorId(clienteId);
+      if (cliente) {
+        modalTitle.textContent = "Editar Cliente";
+        preencherFormulario(cliente);
+        submitBtn.textContent = "Atualizar Cliente";
+      }
     }
 
-    /**
-     * Preenche formulário com dados do cliente
-     */
-    function preencherFormulario(cliente) {
-        document.getElementById('clienteId').value = cliente.id;
-        document.getElementById('nome').value = cliente.nome;
-        document.getElementById('tipoPessoa').value = cliente.tipoPessoa || 'pessoa_fisica';
-        document.getElementById('cpfCnpj').value = cliente.cpfCnpj;
-        document.getElementById('telefone').value = cliente.telefone || '';
-        document.getElementById('email').value = cliente.email || '';
-        document.getElementById('endereco').value = cliente.endereco || '';
-        document.getElementById('observacoes').value = cliente.observacoes || '';
-    }
+    modal.classList.add("active");
+  }
 
-    // ============================
-    // FUNÇÕES DE CRUD
-    // ============================
+  /**
+   * Fecha todos os modais
+   */
+  function fecharModal() {
+    document.querySelectorAll(".modal").forEach((modal) => {
+      modal.classList.remove("active");
+    });
+  }
 
-    /**
-     * Visualiza detalhes do cliente
-     */
-    function visualizarCliente(id) {
-        const cliente = buscarClientePorId(id);
-        if (!cliente) return;
+  /**
+   * Preenche formulário com dados do cliente
+   */
+  function preencherFormulario(cliente) {
+    document.getElementById("clienteId").value = cliente.id;
+    document.getElementById("nome").value = cliente.nome;
+    document.getElementById("tipoPessoa").value =
+      cliente.tipoPessoa || "pessoa_fisica";
+    document.getElementById("cpfCnpj").value = cliente.cpfCnpj;
+    document.getElementById("telefone").value = cliente.telefone || "";
+    document.getElementById("email").value = cliente.email || "";
+    document.getElementById("endereco").value = cliente.endereco || "";
+    document.getElementById("observacoes").value = cliente.observacoes || "";
+  }
 
-        clienteAtual = cliente;
-        const modal = document.getElementById('modalVisualizar');
-        const detalhes = document.getElementById('clienteDetalhes');
+  // ============================
+  // FUNÇÕES DE CRUD
+  // ============================
 
-        detalhes.innerHTML = `
+  /**
+   * Visualiza detalhes do cliente
+   */
+  function visualizarCliente(id) {
+    const cliente = buscarClientePorId(id);
+    if (!cliente) return;
+
+    clienteAtual = cliente;
+    const modal = document.getElementById("modalVisualizar");
+    const detalhes = document.getElementById("clienteDetalhes");
+
+    detalhes.innerHTML = `
             <div class="client-details">
                 <div class="client-header">
-                    <div class="client-avatar-large">${cliente.nome.charAt(0).toUpperCase()}</div>
+                    <div class="client-avatar-large">${cliente.nome
+                      .charAt(0)
+                      .toUpperCase()}</div>
                     <div class="client-info-large">
                         <h3>${cliente.nome}</h3>
-                        <p class="client-type">${cliente.tipoPessoa === 'pessoa_juridica' ? 'Pessoa Jurídica' : 'Pessoa Física'}</p>
+                        <p class="client-type">${
+                          cliente.tipoPessoa === "pessoa_juridica"
+                            ? "Pessoa Jurídica"
+                            : "Pessoa Física"
+                        }</p>
                     </div>
                 </div>
 
@@ -467,489 +533,499 @@
                     </div>
                     <div class="detail-item">
                         <label>Telefone:</label>
-                        <span>${cliente.telefone || 'Não informado'}</span>
+                        <span>${cliente.telefone || "Não informado"}</span>
                     </div>
                     <div class="detail-item">
                         <label>E-mail:</label>
-                        <span>${cliente.email || 'Não informado'}</span>
+                        <span>${cliente.email || "Não informado"}</span>
                     </div>
                     <div class="detail-item">
                         <label>Endereço:</label>
-                        <span>${cliente.endereco || 'Não informado'}</span>
+                        <span>${cliente.endereco || "Não informado"}</span>
                     </div>
                     <div class="detail-item">
                         <label>Status:</label>
-                        <span class="status-badge ${cliente.status || 'ativo'}">${cliente.status || 'Ativo'}</span>
+                        <span class="status-badge ${
+                          cliente.status || "ativo"
+                        }">${cliente.status || "Ativo"}</span>
                     </div>
                     <div class="detail-item">
                         <label>Data de Cadastro:</label>
                         <span>${formatarDataHora(cliente.dataCadastro)}</span>
                     </div>
-                    ${cliente.observacoes ? `
+                    ${
+                      cliente.observacoes
+                        ? `
                     <div class="detail-item full-width">
                         <label>Observações:</label>
                         <span>${cliente.observacoes}</span>
                     </div>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                 </div>
             </div>
         `;
 
-        modal.classList.add('active');
+    modal.classList.add("active");
+  }
+
+  /**
+   * Edita cliente
+   */
+  function editarCliente(id) {
+    abrirModal("editarCliente", id);
+  }
+
+  /**
+   * Edita o cliente atual (do modal de visualização)
+   */
+  function editarClienteAtual() {
+    if (clienteAtual) {
+      fecharModal();
+      setTimeout(() => {
+        editarCliente(clienteAtual.id);
+      }, 300);
+    }
+  }
+
+  /**
+   * Exporta lista de clientes
+   */
+  function exportarClientes() {
+    if (clientesFiltrados.length === 0) {
+      alert("Nenhum cliente para exportar.");
+      return;
     }
 
-    /**
-     * Edita cliente
-     */
-    function editarCliente(id) {
-        abrirModal('editarCliente', id);
-    }
+    let csv = "Nome,CPF/CNPJ,Telefone,Email,Endereço,Status,Data Cadastro\n";
 
-    /**
-     * Edita o cliente atual (do modal de visualização)
-     */
-    function editarClienteAtual() {
-        if (clienteAtual) {
-            fecharModal();
-            setTimeout(() => {
-                editarCliente(clienteAtual.id);
-            }, 300);
-        }
-    }
-
-    /**
-     * Exclui cliente
-     */
-    function excluirCliente(id) {
-        const cliente = buscarClientePorId(id);
-        if (!cliente) return;
-
-        if (confirm(`Tem certeza que deseja excluir o cliente "${cliente.nome}"?\n\nEsta ação não pode ser desfeita.`)) {
-            if (removerCliente(id)) {
-                alert('Cliente excluído com sucesso!');
-                aplicarFiltros();
-                atualizarEstatisticas();
-            } else {
-                alert('Erro ao excluir cliente. Tente novamente.');
-            }
-        }
-    }
-
-    /**
-     * Exporta lista de clientes
-     */
-    function exportarClientes() {
-        if (clientesFiltrados.length === 0) {
-            alert('Nenhum cliente para exportar.');
-            return;
-        }
-
-        let csv = 'Nome,CPF/CNPJ,Telefone,Email,Endereço,Status,Data Cadastro\n';
-
-        clientesFiltrados.forEach(cliente => {
-            csv += `"${cliente.nome}","${cliente.cpfCnpj}","${cliente.telefone || ''}","${cliente.email || ''}","${cliente.endereco || ''}","${cliente.status || 'Ativo'}","${formatarData(cliente.dataCadastro)}"\n`;
-        });
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `clientes_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    // ============================
-    // EVENTOS (movidos para dentro do DOMContentLoaded)
-    // ============================
-
-    // ============================
-    // INICIALIZAÇÃO
-    // ============================
-
-    document.addEventListener('DOMContentLoaded', async function() {
-        // Protege a página
-        protegerPagina();
-
-        // Atualiza informações do usuário
-        atualizarInfoUsuario();
-
-        // Define elementos do DOM (agora que estão disponíveis)
-        searchInput = document.getElementById('searchInput');
-        clientsTableBody = document.getElementById('clientsTableBody');
-        pagination = document.getElementById('pagination');
-        totalClientes = document.getElementById('totalClientes');
-        clientesAtivos = document.getElementById('clientesAtivos');
-        comEmail = document.getElementById('comEmail');
-        semTelefone = document.getElementById('semTelefone');
-        resultadosInfo = document.getElementById('resultadosInfo');
-
-        // Carrega clientes da API e aplica filtros iniciais
-        await carregarClientes();
-        aplicarFiltros();
-        atualizarEstatisticas();
-
-        // Configura event listeners (agora que os elementos existem)
-        configurarEventListeners();
-
-        console.log('✅ Página de clientes carregada!');
+    clientesFiltrados.forEach((cliente) => {
+      csv += `"${cliente.nome}","${cliente.cpfCnpj}","${
+        cliente.telefone || ""
+      }","${cliente.email || ""}","${cliente.endereco || ""}","${
+        cliente.status || "Ativo"
+      }","${formatarData(cliente.dataCadastro)}"\n`;
     });
 
-    /**
-     * Configura todos os event listeners da página
-     */
-    function configurarEventListeners() {
-        // Evento de busca
-        if (searchInput) {
-            searchInput.addEventListener('input', aplicarFiltros);
-        }
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `clientes_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
-        // Evento de filtro por tipo
-        const filtroTipo = document.getElementById('filtroTipo');
-        if (filtroTipo) {
-            filtroTipo.addEventListener('change', aplicarFiltros);
-        }
+  // ============================
+  // EVENTOS (movidos para dentro do DOMContentLoaded)
+  // ============================
 
-        // Eventos de filtros de status
-        document.querySelectorAll('.filter-btn[data-filtro]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-filtro]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                aplicarFiltros();
-            });
-        });
+  // ============================
+  // INICIALIZAÇÃO
+  // ============================
 
-        // Evento do formulário
-        const formCliente = document.getElementById('formCliente');
-        if (formCliente) {
-            formCliente.addEventListener('submit', async function(e) {
-                e.preventDefault();
+  document.addEventListener("DOMContentLoaded", async function () {
+    // Protege a página
+    protegerPagina();
 
-                const formData = new FormData(this);
-                const dados = Object.fromEntries(formData.entries());
+    // Atualiza informações do usuário
+    atualizarInfoUsuario();
 
-                // Validação
-                const validacao = validarFormularioCliente(dados);
-                if (!validacao.valido) {
-                    alert('Erro na validação:\n' + validacao.erros.join('\n'));
-                    return;
-                }
+    // Define elementos do DOM (agora que estão disponíveis)
+    searchInput = document.getElementById("searchInput");
+    clientsTableBody = document.getElementById("clientsTableBody");
+    pagination = document.getElementById("pagination");
+    totalClientes = document.getElementById("totalClientes");
+    clientesAtivos = document.getElementById("clientesAtivos");
+    comEmail = document.getElementById("comEmail");
+    semTelefone = document.getElementById("semTelefone");
+    resultadosInfo = document.getElementById("resultadosInfo");
 
-                // Adiciona status padrão se não existir
-                if (!dados.status) {
-                    dados.status = 'ativo';
-                }
+    // Carrega clientes da API e aplica filtros iniciais
+    await carregarClientes();
+    aplicarFiltros();
+    atualizarEstatisticas();
 
-                const clienteId = document.getElementById('clienteId').value;
+    // Configura event listeners (agora que os elementos existem)
+    configurarEventListeners();
 
-                try {
-                    if (clienteId) {
-                        // Atualizar cliente existente
-                        await atualizarCliente(clienteId, dados);
-                        alert('Cliente atualizado com sucesso!');
-                        fecharModal();
-                        aplicarFiltros();
-                        atualizarEstatisticas();
-                    } else {
-                        // Adicionar novo cliente
-                        await adicionarCliente(dados);
-                        alert('Cliente cadastrado com sucesso!');
-                        fecharModal();
-                        aplicarFiltros();
-                        atualizarEstatisticas();
-                    }
-                } catch (erro) {
-                    const mensagemErro = erro.message || 'Erro ao processar a solicitação. Tente novamente.';
-                    alert('❌ Erro: ' + mensagemErro);
-                    console.error('Erro ao salvar cliente:', erro);
-                }
-            });
-        }
+    console.log("✅ Página de clientes carregada!");
+  });
 
-        // Formatação automática de campos
-        const cpfCnpj = document.getElementById('cpfCnpj');
-        if (cpfCnpj) {
-            cpfCnpj.addEventListener('input', function(e) {
-                e.target.value = formatarCpfCnpj(e.target.value);
-            });
-        }
-
-        const telefone = document.getElementById('telefone');
-        if (telefone) {
-            telefone.addEventListener('input', function(e) {
-                e.target.value = formatarTelefone(e.target.value);
-            });
-        }
-
-        // Fechar modal ao clicar fora
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    fecharModal();
-                }
-            });
-        });
+  /**
+   * Configura todos os event listeners da página
+   */
+  function configurarEventListeners() {
+    // Evento de busca
+    if (searchInput) {
+      searchInput.addEventListener("input", aplicarFiltros);
     }
+
+    // Evento de filtro por tipo
+    const filtroTipo = document.getElementById("filtroTipo");
+    if (filtroTipo) {
+      filtroTipo.addEventListener("change", aplicarFiltros);
+    }
+
+    // Eventos de filtros de status
+    document.querySelectorAll(".filter-btn[data-filtro]").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        document
+          .querySelectorAll(".filter-btn[data-filtro]")
+          .forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        aplicarFiltros();
+      });
+    });
+
+    // Evento do formulário
+    const formCliente = document.getElementById("formCliente");
+    if (formCliente) {
+      formCliente.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const dados = Object.fromEntries(formData.entries());
+
+        // Validação
+        const validacao = validarFormularioCliente(dados);
+        if (!validacao.valido) {
+          alert("Erro na validação:\n" + validacao.erros.join("\n"));
+          return;
+        }
+
+        // Adiciona status padrão se não existir
+        if (!dados.status) {
+          dados.status = "ativo";
+        }
+
+        const clienteId = document.getElementById("clienteId").value;
+
+        try {
+          if (clienteId) {
+            // Atualizar cliente existente
+            await atualizarCliente(clienteId, dados);
+            alert("Cliente atualizado com sucesso!");
+            fecharModal();
+            aplicarFiltros();
+            atualizarEstatisticas();
+          } else {
+            // Adicionar novo cliente
+            await adicionarCliente(dados);
+            alert("Cliente cadastrado com sucesso!");
+            fecharModal();
+            aplicarFiltros();
+            atualizarEstatisticas();
+          }
+        } catch (erro) {
+          const mensagemErro =
+            erro.message || "Erro ao processar a solicitação. Tente novamente.";
+          alert("❌ Erro: " + mensagemErro);
+          console.error("Erro ao salvar cliente:", erro);
+        }
+      });
+    }
+
+    // Formatação automática de campos
+    const cpfCnpj = document.getElementById("cpfCnpj");
+    if (cpfCnpj) {
+      cpfCnpj.addEventListener("input", function (e) {
+        e.target.value = formatarCpfCnpj(e.target.value);
+      });
+    }
+
+    const telefone = document.getElementById("telefone");
+    if (telefone) {
+      telefone.addEventListener("input", function (e) {
+        e.target.value = formatarTelefone(e.target.value);
+      });
+    }
+
+    // Fechar modal ao clicar fora
+    document.querySelectorAll(".modal").forEach((modal) => {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+          fecharModal();
+        }
+      });
+    });
+  }
 </script>
 
-    <style>
-        /* Estilos específicos para a página de clientes */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+<style>
+  /* Estilos específicos para a página de clientes */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
 
-        .stat-card {
-            background: var(--bg-primary);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px var(--shadow-color);
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+  .stat-card {
+    background: var(--bg-primary);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
 
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
 
-        .stat-icon.blue { background: #dbeafe; color: #1e3a8a; }
-        .stat-icon.green { background: #d1fae5; color: #065f46; }
-        .stat-icon.yellow { background: #fef3c7; color: #92400e; }
-        .stat-icon.red { background: #fee2e2; color: #dc2626; }
+  .stat-icon.blue {
+    background: #dbeafe;
+    color: #1e3a8a;
+  }
+  .stat-icon.green {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  .stat-icon.yellow {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .stat-icon.red {
+    background: #fee2e2;
+    color: #dc2626;
+  }
 
-        .stat-info h3 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0;
-        }
+  .stat-info h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
 
-        .stat-info p {
-            color: var(--text-secondary);
-            margin: 5px 0 0 0;
-            font-size: 14px;
-        }
+  .stat-info p {
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+    font-size: 14px;
+  }
 
-        .filters-section {
-            background: var(--bg-primary);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px var(--shadow-color);
-            border: 2px solid var(--border-color);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+  .filters-section {
+    background: var(--bg-primary);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    border: 2px solid var(--border-color);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
 
-        .filter-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+  .filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-        .results-info {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
+  .results-info {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
 
-        .clients-section {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 8px var(--shadow-color);
-            border: 2px solid var(--border-color);
-        }
+  .clients-section {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    border: 2px solid var(--border-color);
+  }
 
-        .table-container {
-            overflow-x: auto;
-        }
+  .table-container {
+    overflow-x: auto;
+  }
 
-        .clients-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+  .clients-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-        .clients-table thead {
-            background: var(--bg-tertiary);
-        }
+  .clients-table thead {
+    background: var(--bg-tertiary);
+  }
 
-        .clients-table th {
-            padding: 15px 12px;
-            text-align: left;
-            font-size: 13px;
-            color: var(--text-primary);
-            font-weight: 600;
-            white-space: nowrap;
-        }
+  .clients-table th {
+    padding: 15px 12px;
+    text-align: left;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+  }
 
-        .clients-table td {
-            padding: 15px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
+  .clients-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+  }
 
-        .clients-table tbody tr:hover {
-            background: var(--bg-tertiary);
-        }
+  .clients-table tbody tr:hover {
+    background: var(--bg-tertiary);
+  }
 
-    .client-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+  .client-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .client-avatar {
+    width: 35px;
+    height: 35px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .client-avatar-large {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .client-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .client-info-large h3 {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+  }
+
+  .client-type {
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+  }
+
+  .client-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .detail-item.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .detail-item label {
+    font-weight: 600;
+    color: var(--gray-dark);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-item span {
+    color: var(--gray-dark);
+    font-size: 14px;
+  }
+
+  .pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .pagination-controls {
+    display: flex;
+    gap: 5px;
+  }
+
+  .pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+  }
+
+  .pagination-btn:hover {
+    background: var(--gray-light);
+  }
+
+  .pagination-btn.active {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+  }
+
+  .btn-delete {
+    background: var(--red) !important;
+    color: white !important;
+  }
+
+  .btn-delete:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    .client-avatar {
-        width: 35px;
-        height: 35px;
-        background: var(--primary-blue);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 14px;
+    .filters-section {
+      flex-direction: column;
+      align-items: stretch;
     }
 
-    .client-avatar-large {
-        width: 60px;
-        height: 60px;
-        background: var(--primary-blue);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 24px;
+    .filter-controls {
+      justify-content: center;
     }
 
-    .client-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 25px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #e5e7eb;
+    .clients-table {
+      font-size: 12px;
     }
 
-    .client-info-large h3 {
-        margin: 0;
-        color: white;
-        font-size: 24px;
+    .clients-table th,
+    .clients-table td {
+      padding: 8px;
     }
-
-    .client-type {
-        color: var(--text-secondary);
-        margin: 5px 0 0 0;
-    }
-
-    .client-details-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .detail-item.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .detail-item label {
-        font-weight: 600;
-        color: var(--gray-dark);
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .detail-item span {
-        color: var(--gray-dark);
-        font-size: 14px;
-    }
-
-    .pagination {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-    }
-
-    .pagination-controls {
-        display: flex;
-        gap: 5px;
-    }
-
-    .pagination-btn {
-        padding: 8px 12px;
-        border: 1px solid #e5e7eb;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s;
-    }
-
-    .pagination-btn:hover {
-        background: var(--gray-light);
-    }
-
-    .pagination-btn.active {
-        background: var(--primary-blue);
-        color: white;
-        border-color: var(--primary-blue);
-    }
-
-    .btn-delete {
-        background: var(--red) !important;
-        color: white !important;
-    }
-
-    .btn-delete:hover {
-        opacity: 0.8;
-    }
-
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .filters-section {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filter-controls {
-            justify-content: center;
-        }
-
-        .clients-table {
-            font-size: 12px;
-        }
-
-        .clients-table th,
-        .clients-table td {
-            padding: 8px;
-        }
-    }
+  }
 </style>
 {% endblock %}

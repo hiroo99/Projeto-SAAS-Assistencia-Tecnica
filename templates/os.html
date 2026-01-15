@@ -407,25 +407,6 @@ endblock %} {% set active_page = 'os' %} {% block content %}
   }
 
   /**
-   * Remove uma OS via API
-   */
-  async function removerOS(id) {
-    const indice = osEmMemoria.findIndex((o) => o.id === parseInt(id));
-
-    if (indice === -1) {
-      console.error("❌ OS não encontrada:", id);
-      return false;
-    }
-
-    const numeroOS = osEmMemoria[indice].numeroOS;
-    await deletarOSApi(id);
-    osEmMemoria.splice(indice, 1);
-
-    console.log("✅ OS removida:", numeroOS);
-    return true;
-  }
-
-  /**
    * Busca uma OS por ID
    */
   function buscarOSPorId(id) {
@@ -556,6 +537,9 @@ endblock %} {% set active_page = 'os' %} {% block content %}
         os.status !== "entregue" &&
         os.status !== "cancelado";
 
+      // Verificar se OS está entregue (não permite edição)
+      const entregue = os.status === "entregue";
+
       row.innerHTML = `
                     <td><strong>${os.numeroOS}</strong></td>
                     <td>${os.clienteNome || os.cliente}</td>
@@ -572,7 +556,9 @@ endblock %} {% set active_page = 'os' %} {% block content %}
                     <td>
                         <select class="status-select" onchange="mudarStatusOS('${
                           os.id
-                        }', this.value)" data-os-id="${os.id}">
+                        }', this.value)" data-os-id="${os.id}" ${
+        entregue ? "disabled" : ""
+      }>
                             <option value="aguardando" ${
                               os.status === "aguardando" ? "selected" : ""
                             }>Aguardando</option>
@@ -606,13 +592,8 @@ endblock %} {% set active_page = 'os' %} {% block content %}
                             </button>
                             <button class="action-btn-small btn-edit" onclick="editarOS('${
                               os.id
-                            }')" title="Editar">
+                            }')" title="Editar" ${entregue ? "disabled" : ""}>
                                 ✏️
-                            </button>
-                            <button class="action-btn-small btn-delete" onclick="excluirOS('${
-                              os.id
-                            }')" title="Excluir">
-                                🗑️
                             </button>
                         </div>
                     </td>
@@ -918,7 +899,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
                             }">${getPrioridadeText(os.prioridade)}</span>
                         </div>
                     </div>
-                    
+
                     <div class="os-details-grid">
                         <div class="detail-item">
                             <label>Cliente:</label>
@@ -993,6 +974,15 @@ endblock %} {% set active_page = 'os' %} {% block content %}
    * Edita OS
    */
   function editarOS(id) {
+    const os = buscarOSPorId(id);
+    if (!os) return;
+
+    // Verificar se OS está entregue
+    if (os.status === "entregue") {
+      alert("Ordens de serviço entregues não podem ser editadas.");
+      return;
+    }
+
     abrirModal("editarOS", id);
   }
 
@@ -1001,34 +991,16 @@ endblock %} {% set active_page = 'os' %} {% block content %}
    */
   function editarOSAtual() {
     if (osAtual) {
+      // Verificar se OS está entregue
+      if (osAtual.status === "entregue") {
+        alert("Ordens de serviço entregues não podem ser editadas.");
+        return;
+      }
+
       fecharModal();
       setTimeout(() => {
         editarOS(osAtual.id);
       }, 300);
-    }
-  }
-
-  /**
-   * Exclui OS
-   */
-  async function excluirOS(id) {
-    const os = buscarOSPorId(id);
-    if (!os) return;
-
-    if (
-      confirm(
-        `Tem certeza que deseja excluir a O.S "${os.numeroOS}"?\n\nEsta ação não pode ser desfeita.`
-      )
-    ) {
-      if (removerOS(id)) {
-        alert("O.S excluída com sucesso!");
-        // Recarrega dados da API para garantir sincronização
-        await carregarOS();
-        aplicarFiltros();
-        atualizarEstatisticas();
-      } else {
-        alert("Erro ao excluir O.S. Tente novamente.");
-      }
     }
   }
 

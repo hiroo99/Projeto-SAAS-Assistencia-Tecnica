@@ -383,7 +383,7 @@
             top: 80px;
             left: 0;
             height: calc(100vh - 80px);
-            overflow-y: auto;
+            overflow: hidden;
             z-index: 85;
         }
 

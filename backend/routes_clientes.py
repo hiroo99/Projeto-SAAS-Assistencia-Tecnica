@@ -21,9 +21,9 @@ def cliente_to_dict(cliente: Cliente) -> dict:
         "observacoes": cliente.observacoes,
         "status": cliente.status,
         "dataCadastro": cliente.criado_em.isoformat() if cliente.criado_em else None,
-        "dataAtualizacao": cliente.atualizado_em.isoformat()
-        if cliente.atualizado_em
-        else None,
+        "dataAtualizacao": (
+            cliente.atualizado_em.isoformat() if cliente.atualizado_em else None
+        ),
     }
 
 
@@ -44,15 +44,22 @@ def criar_cliente():
         abort(400, description="Campos obrigatórios: nome, cpfCnpj, telefone")
 
     # Limpa o CPF/CNPJ removendo caracteres especiais
-    cpf_cnpj_limpo = data["cpfCnpj"].replace(".", "").replace("-", "").replace("/", "").strip()
+    cpf_cnpj_limpo = (
+        data["cpfCnpj"].replace(".", "").replace("-", "").replace("/", "").strip()
+    )
 
     # Verifica se o CPF/CNPJ já existe
     cliente_existente = Cliente.query.filter_by(cpf_cnpj=cpf_cnpj_limpo).first()
     if cliente_existente:
-        return jsonify({
-            "erro": "CPF/CNPJ já cadastrado",
-            "mensagem": f"Já existe um cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}"
-        }), 409
+        return (
+            jsonify(
+                {
+                    "erro": "CPF/CNPJ já cadastrado",
+                    "mensagem": f"Já existe um cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}",
+                }
+            ),
+            409,
+        )
 
     cliente = Cliente(
         nome=data["nome"].strip(),
@@ -82,12 +89,17 @@ def criar_cliente():
     except IntegrityError as e:
         db.session.rollback()
         # Verifica se é erro de constraint UNIQUE no CPF/CNPJ
-        error_str = str(e.orig).lower() if hasattr(e, 'orig') else str(e).lower()
+        error_str = str(e.orig).lower() if hasattr(e, "orig") else str(e).lower()
         if "unique constraint failed" in error_str and "cpf_cnpj" in error_str:
-            return jsonify({
-                "erro": "CPF/CNPJ já cadastrado",
-                "mensagem": f"Já existe um cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}"
-            }), 409
+            return (
+                jsonify(
+                    {
+                        "erro": "CPF/CNPJ já cadastrado",
+                        "mensagem": f"Já existe um cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}",
+                    }
+                ),
+                409,
+            )
         # Re-raise se for outro tipo de erro de integridade
         raise
 
@@ -117,10 +129,15 @@ def atualizar_cliente(cliente_id: int):
         if cpf_cnpj_limpo != cliente.cpf_cnpj:
             cliente_existente = Cliente.query.filter_by(cpf_cnpj=cpf_cnpj_limpo).first()
             if cliente_existente and cliente_existente.id != cliente_id:
-                return jsonify({
-                    "erro": "CPF/CNPJ já cadastrado",
-                    "mensagem": f"Já existe outro cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}"
-                }), 409
+                return (
+                    jsonify(
+                        {
+                            "erro": "CPF/CNPJ já cadastrado",
+                            "mensagem": f"Já existe outro cliente cadastrado com o CPF/CNPJ {data['cpfCnpj']}",
+                        }
+                    ),
+                    409,
+                )
         cliente.cpf_cnpj = cpf_cnpj_limpo
     if "tipoPessoa" in data:
         cliente.tipo_pessoa = data["tipoPessoa"]
@@ -140,22 +157,18 @@ def atualizar_cliente(cliente_id: int):
     except IntegrityError as e:
         db.session.rollback()
         # Verifica se é erro de constraint UNIQUE no CPF/CNPJ
-        error_str = str(e.orig).lower() if hasattr(e, 'orig') else str(e).lower()
+        error_str = str(e.orig).lower() if hasattr(e, "orig") else str(e).lower()
         if "unique constraint failed" in error_str and "cpf_cnpj" in error_str:
-            return jsonify({
-                "erro": "CPF/CNPJ já cadastrado",
-                "mensagem": f"Já existe outro cliente cadastrado com este CPF/CNPJ"
-            }), 409
+            return (
+                jsonify(
+                    {
+                        "erro": "CPF/CNPJ já cadastrado",
+                        "mensagem": f"Já existe outro cliente cadastrado com este CPF/CNPJ",
+                    }
+                ),
+                409,
+            )
         # Re-raise se for outro tipo de erro de integridade
         raise
 
     return jsonify(cliente_to_dict(cliente))
-
-
-@bp.delete("/<int:cliente_id>")
-@login_required
-def deletar_cliente(cliente_id: int):
-    cliente = Cliente.query.get_or_404(cliente_id)
-    db.session.delete(cliente)
-    db.session.commit()
-    return "", 204
