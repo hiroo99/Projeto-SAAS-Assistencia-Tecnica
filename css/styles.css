@@ -2265,6 +2265,34 @@
     border-left: 3px solid var(--primary-blue);
 }
 
+.history-delete-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.history-item:hover .history-delete-btn {
+    display: block;
+}
+
+.history-delete-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--red);
+}
+
+.history-item {
+    position: relative;
+}
+
 .history-content {
     flex: 1;
     min-width: 0;

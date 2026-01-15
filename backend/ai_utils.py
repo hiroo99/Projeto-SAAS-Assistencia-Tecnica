@@ -68,12 +68,24 @@ def gerar_pre_diagnostico(
         return "Pré-diagnóstico não disponível."
 
 
-def interpretar_consulta_ia(consulta: str, dados_contexto: dict) -> dict:
+def interpretar_consulta_ia(consulta: str, dados_contexto: dict, estado_conversacional: dict = None) -> dict:
     """
     Interpreta uma consulta em linguagem natural e extrai informações dos dados disponíveis.
+    Suporta criação conversacional de dados (clientes, OS, produtos).
     Retorna uma resposta estruturada com a informação solicitada.
     """
     try:
+        consulta_lower = consulta.lower()
+
+        # Verificar se estamos em um fluxo conversacional de criação
+        if estado_conversacional and estado_conversacional.get('modo'):
+            return processar_fluxo_conversacional(consulta, estado_conversacional, dados_contexto)
+
+        # Verificar se o usuário quer iniciar criação de dados
+        intencao_criacao = detectar_intencao_criacao(consulta_lower)
+        if intencao_criacao:
+            return iniciar_fluxo_criacao(intencao_criacao, dados_contexto)
+
         # Contexto dos dados disponíveis
         contexto = f"""
 Sistema de Assistência Técnica - Dados Disponíveis:
@@ -93,7 +105,7 @@ Produtos com estoque baixo: {len([p for p in dados_contexto.get('produtos', []) 
 
 FINANCEIRO:
 Receitas totais: R$ {dados_contexto.get('receitas_totais', 0):.2f}
-OS entregues: {dados_contexto.get('os_entregues', 0)}
+OS entregues: {dados_contexto.get('os_entregues', 0)} OS
 
 CONSULTA DO USUÁRIO: "{consulta}"
 
@@ -115,10 +127,12 @@ TIPO DE RESPOSTAS ESPERADAS:
 
 Sua tarefa é interpretar a consulta do usuário e fornecer a informação solicitada baseada apenas nos dados fornecidos acima.
 
-Responda APENAS com a informação solicitada, sem introduções ou explicações adicionais.
-Se a informação não estiver disponível, diga "Não encontrei essa informação nos dados disponíveis."
-
-Formate a resposta de forma natural e conversacional, mas precisa."""
+INSTRUÇÕES IMPORTANTES:
+- Responda APENAS com a informação solicitada, sem introduções ou explicações adicionais
+- Use APENAS texto puro, sem formatação Markdown (*, **, _, etc.) ou símbolos especiais
+- Escreva de forma natural e conversacional, mas direta
+- Se a informação não estiver disponível, diga "Não encontrei essa informação nos dados disponíveis."
+"""
 
         response = client.chat(
             model="mistral-large-latest", messages=[{"role": "user", "content": prompt}]
@@ -132,7 +146,8 @@ Formate a resposta de forma natural e conversacional, mas precisa."""
         return {
             "resposta": resposta_ia,
             "dados": dados_resposta,
-            "consulta": consulta
+            "consulta": consulta,
+            "estado_conversacional": None  # Não há fluxo conversacional ativo
         }
 
     except Exception as e:
@@ -140,7 +155,8 @@ Formate a resposta de forma natural e conversacional, mas precisa."""
         return {
             "resposta": "Desculpe, não foi possível processar sua consulta no momento.",
             "dados": {},
-            "consulta": consulta
+            "consulta": consulta,
+            "estado_conversacional": None
         }
 
 
@@ -200,3 +216,294 @@ def extrair_dados_consulta(consulta: str, dados_contexto: dict) -> dict:
         }
 
     return {"tipo": "nao_encontrado", "dados": {}}
+
+
+def detectar_intencao_criacao(consulta_lower: str) -> str:
+    """
+    Detecta se o usuário quer criar dados (cliente, OS, produto).
+    Retorna o tipo de criação ou None.
+    """
+    # Padrões para detectar intenção de criação
+    padroes_cliente = [
+        'adicionar cliente', 'cadastrar cliente', 'criar cliente', 'novo cliente',
+        'registrar cliente', 'incluir cliente', 'quero adicionar um cliente',
+        'gostaria de adicionar um cliente'
+    ]
+
+    padroes_os = [
+        'criar os', 'nova os', 'adicionar os', 'cadastrar os', 'registrar os',
+        'nova ordem', 'ordem de serviço', 'quero criar uma os'
+    ]
+
+    padroes_produto = [
+        'adicionar produto', 'cadastrar produto', 'criar produto', 'novo produto',
+        'registrar produto', 'incluir produto', 'quero adicionar um produto'
+    ]
+
+    for padrao in padroes_cliente:
+        if padrao in consulta_lower:
+            return 'cliente'
+
+    for padrao in padroes_os:
+        if padrao in consulta_lower:
+            return 'os'
+
+    for padrao in padroes_produto:
+        if padrao in consulta_lower:
+            return 'produto'
+
+    return None
+
+
+def iniciar_fluxo_criacao(tipo: str, dados_contexto: dict) -> dict:
+    """
+    Inicia um fluxo conversacional para criação de dados.
+    """
+    if tipo == 'cliente':
+        estado = {
+            "modo": "criacao_cliente",
+            "etapa": 1,
+            "dados": {},
+            "campos_obrigatorios": ["nome", "cpfCnpj", "telefone"],
+            "campos_opcionais": ["email", "endereco", "observacoes"],
+            "proximo_campo": "nome"
+        }
+        resposta = "Certo! Vou ajudar você a cadastrar um novo cliente. Qual o nome completo do cliente?"
+
+    elif tipo == 'os':
+        estado = {
+            "modo": "criacao_os",
+            "etapa": 1,
+            "dados": {},
+            "campos_obrigatorios": ["clienteId", "tipoAparelho", "marcaModelo", "problemaRelatado"],
+            "campos_opcionais": ["imeiSerial", "corAparelho", "valorOrcamento", "observacoes"],
+            "proximo_campo": "cliente"
+        }
+        resposta = "Perfeito! Vou criar uma nova Ordem de Serviço. Primeiro, preciso saber qual cliente. Você pode informar o nome do cliente ou seu ID."
+
+    elif tipo == 'produto':
+        estado = {
+            "modo": "criacao_produto",
+            "etapa": 1,
+            "dados": {},
+            "campos_obrigatorios": ["nome", "categoria", "codigo"],
+            "campos_opcionais": ["descricao", "quantidade", "estoqueMinimo", "precoCusto", "precoVenda", "fornecedor", "localizacao"],
+            "proximo_campo": "nome"
+        }
+        resposta = "Excelente! Vou cadastrar um novo produto. Qual o nome do produto?"
+
+    else:
+        return {
+            "resposta": "Desculpe, não entendi o tipo de dado que você quer criar.",
+            "dados": {},
+            "consulta": "",
+            "estado_conversacional": None
+        }
+
+    return {
+        "resposta": resposta,
+        "dados": {"tipo": "fluxo_criacao", "modo": estado["modo"]},
+        "consulta": "",
+        "estado_conversacional": estado
+    }
+
+
+def processar_fluxo_conversacional(consulta: str, estado: dict, dados_contexto: dict) -> dict:
+    """
+    Processa uma resposta dentro de um fluxo conversacional de criação.
+    """
+    modo = estado.get('modo')
+
+    if modo == 'criacao_cliente':
+        return processar_criacao_cliente(consulta, estado, dados_contexto)
+    elif modo == 'criacao_os':
+        return processar_criacao_os(consulta, estado, dados_contexto)
+    elif modo == 'criacao_produto':
+        return processar_criacao_produto(consulta, estado, dados_contexto)
+    else:
+        # Finalizar fluxo se modo desconhecido
+        return {
+            "resposta": "Ocorreu um erro no fluxo conversacional. Vamos recomeçar.",
+            "dados": {},
+            "consulta": consulta,
+            "estado_conversacional": None
+        }
+
+
+def processar_criacao_cliente(consulta: str, estado: dict, dados_contexto: dict) -> dict:
+    """
+    Processa o fluxo de criação de cliente.
+    """
+    etapa = estado.get('etapa', 1)
+    dados = estado.get('dados', {})
+    campos_obrigatorios = estado.get('campos_obrigatorios', [])
+    campos_opcionais = estado.get('campos_opcionais', [])
+
+    # Verificar comandos especiais
+    consulta_lower = consulta.lower().strip()
+    if consulta_lower in ['cancelar', 'cancela', 'parar', 'sair']:
+        return {
+            "resposta": "Ok, cancelei o cadastro do cliente.",
+            "dados": {},
+            "consulta": consulta,
+            "estado_conversacional": None
+        }
+
+    # Processar conforme etapa
+    if etapa == 1:  # Nome
+        if not consulta.strip():
+            resposta = "Por favor, informe o nome completo do cliente:"
+        else:
+            dados['nome'] = consulta.strip()
+            estado['dados'] = dados
+            estado['etapa'] = 2
+            estado['proximo_campo'] = 'cpfCnpj'
+            resposta = "Perfeito! Agora preciso do CPF ou CNPJ do cliente:"
+
+    elif etapa == 2:  # CPF/CNPJ
+        # Validação básica de CPF/CNPJ
+        cpf_limpo = consulta.replace('.', '').replace('-', '').replace('/', '').strip()
+        if len(cpf_limpo) < 11:
+            resposta = "CPF/CNPJ parece estar incompleto. Por favor, digite novamente:"
+        elif not cpf_limpo.isdigit():
+            resposta = "CPF/CNPJ deve conter apenas números. Por favor, digite novamente:"
+        else:
+            # Verificar se já existe
+            cpf_existe = any(c['cpf_cnpj'].replace('.', '').replace('-', '').replace('/', '') == cpf_limpo
+                           for c in dados_contexto.get('clientes', []))
+            if cpf_existe:
+                resposta = "Este CPF/CNPJ já está cadastrado no sistema. Por favor, verifique ou use outro:"
+            else:
+                dados['cpfCnpj'] = consulta.strip()
+                estado['dados'] = dados
+                estado['etapa'] = 3
+                estado['proximo_campo'] = 'telefone'
+                resposta = "Ótimo! Agora qual o telefone de contato?"
+
+    elif etapa == 3:  # Telefone
+        telefone_limpo = consulta.replace('(', '').replace(')', '').replace('-', '').replace(' ', '').strip()
+        if len(telefone_limpo) < 10:
+            resposta = "Telefone parece estar incompleto. Por favor, digite novamente:"
+        elif not telefone_limpo.isdigit():
+            resposta = "Telefone deve conter apenas números. Por favor, digite novamente:"
+        else:
+            dados['telefone'] = consulta.strip()
+            estado['dados'] = dados
+            estado['etapa'] = 4
+            estado['proximo_campo'] = 'confirmacao'
+
+            # Resumo para confirmação
+            resposta = f"Excelente! Aqui está o resumo do cliente:\n\n📝 Nome: {dados['nome']}\n🆔 CPF/CNPJ: {dados['cpfCnpj']}\n📞 Telefone: {dados['telefone']}\n\nDeseja confirmar o cadastro ou adicionar mais informações (email, endereço)?"
+
+    elif etapa == 4:  # Confirmação/Finalização
+        if any(palavra in consulta_lower for palavra in ['sim', 'confirmar', 'ok', 'certo', 'cadastrar']):
+            # Tentar criar o cliente
+            try:
+                # Preparar dados de criação incluindo campos opcionais
+                dados_criacao = {
+                    "nome": dados['nome'],
+                    "cpfCnpj": dados['cpfCnpj'],
+                    "telefone": dados['telefone'],
+                    "status": "ativo"
+                }
+
+                # Adicionar campos opcionais se foram fornecidos
+                if 'email' in dados and dados['email']:
+                    dados_criacao['email'] = dados['email']
+                if 'endereco' in dados and dados['endereco']:
+                    dados_criacao['endereco'] = dados['endereco']
+                if 'observacoes' in dados and dados['observacoes']:
+                    dados_criacao['observacoes'] = dados['observacoes']
+
+                return {
+                    "resposta": f"✅ Cliente '{dados['nome']}' cadastrado com sucesso!",
+                    "dados": {
+                        "tipo": "cliente_criado",
+                        "dados": dados_criacao
+                    },
+                    "consulta": consulta,
+                    "estado_conversacional": None,
+                    "acao": {
+                        "tipo": "criar_cliente",
+                        "dados": dados_criacao
+                    }
+                }
+            except Exception as e:
+                return {
+                    "resposta": f"❌ Ocorreu um erro ao cadastrar o cliente: {str(e)}",
+                    "dados": {},
+                    "consulta": consulta,
+                    "estado_conversacional": estado  # Manter estado para tentar novamente
+                }
+
+        elif any(palavra in consulta_lower for palavra in ['email', 'endereco', 'mais']):
+            estado['etapa'] = 5
+            resposta = "Certo! Qual informação adicional você quer adicionar? (email, endereço ou observações)"
+
+        else:
+            resposta = "Por favor, diga 'sim' para confirmar ou 'email/endereço' para adicionar mais informações:"
+
+    elif etapa == 5:  # Campos opcionais
+        if 'email' in consulta_lower:
+            estado['etapa'] = 6
+            resposta = "Qual o endereço de email do cliente?"
+        elif 'endereco' in consulta_lower or 'endereço' in consulta_lower:
+            estado['etapa'] = 7
+            resposta = "Qual o endereço completo do cliente?"
+        elif 'observacoes' in consulta_lower or 'observações' in consulta_lower:
+            estado['etapa'] = 8
+            resposta = "Quais as observações sobre o cliente?"
+        else:
+            resposta = "Por favor, escolha: email, endereço ou observações:"
+
+    elif etapa == 6:  # Email
+        dados['email'] = consulta.strip()
+        estado['dados'] = dados
+        estado['etapa'] = 4  # Volta para confirmação
+        resposta = f"Email adicionado! Aqui está o resumo atualizado:\n\n📝 Nome: {dados['nome']}\n🆔 CPF/CNPJ: {dados['cpfCnpj']}\n📞 Telefone: {dados['telefone']}\n📧 Email: {dados['email']}\n\nDeseja confirmar o cadastro ou adicionar mais informações?"
+
+    elif etapa == 7:  # Endereço
+        dados['endereco'] = consulta.strip()
+        estado['dados'] = dados
+        estado['etapa'] = 4  # Volta para confirmação
+        resposta = f"Endereço adicionado! Aqui está o resumo atualizado:\n\n📝 Nome: {dados['nome']}\n🆔 CPF/CNPJ: {dados['cpfCnpj']}\n📞 Telefone: {dados['telefone']}\n🏠 Endereço: {dados['endereco']}\n\nDeseja confirmar o cadastro ou adicionar mais informações?"
+
+    elif etapa == 8:  # Observações
+        dados['observacoes'] = consulta.strip()
+        estado['dados'] = dados
+        estado['etapa'] = 4  # Volta para confirmação
+        resposta = f"Observações adicionadas! Aqui está o resumo atualizado:\n\n📝 Nome: {dados['nome']}\n🆔 CPF/CNPJ: {dados['cpfCnpj']}\n📞 Telefone: {dados['telefone']}\n📝 Observações: {dados['observacoes']}\n\nDeseja confirmar o cadastro ou adicionar mais informações?"
+
+    else:
+        resposta = "Ocorreu um erro no fluxo. Vamos recomeçar."
+
+    return {
+        "resposta": resposta,
+        "dados": {"tipo": "fluxo_continuacao"},
+        "consulta": consulta,
+        "estado_conversacional": estado
+    }
+
+
+def processar_criacao_os(consulta: str, estado: dict, dados_contexto: dict) -> dict:
+    """
+    Processa o fluxo de criação de OS (placeholder para implementação futura).
+    """
+    return {
+        "resposta": "Funcionalidade de criação de OS ainda em desenvolvimento. Por enquanto, use o formulário normal.",
+        "dados": {},
+        "consulta": consulta,
+        "estado_conversacional": None
+    }
+
+
+def processar_criacao_produto(consulta: str, estado: dict, dados_contexto: dict) -> dict:
+    """
+    Processa o fluxo de criação de produto (placeholder para implementação futura).
+    """
+    return {
+        "resposta": "Funcionalidade de criação de produto ainda em desenvolvimento. Por enquanto, use o formulário normal.",
+        "dados": {},
+        "consulta": consulta,
+        "estado_conversacional": None
+    }

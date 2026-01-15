@@ -5,9 +5,10 @@
 class ConversationHistory {
     constructor() {
         this.storageKey = 'ai_conversations';
+        this.currentConversationIdKey = 'ai_current_conversation_id';
         this.maxConversations = 10;
         this.conversations = this.loadConversations();
-        this.currentConversationId = null;
+        this.currentConversationId = this.loadCurrentConversationId();
     }
 
     loadConversations() {
@@ -25,6 +26,27 @@ class ConversationHistory {
             localStorage.setItem(this.storageKey, JSON.stringify(this.conversations));
         } catch (e) {
             console.error('Erro ao salvar conversas:', e);
+        }
+    }
+
+    loadCurrentConversationId() {
+        try {
+            return localStorage.getItem(this.currentConversationIdKey) || null;
+        } catch (e) {
+            console.error('Erro ao carregar ID da conversa atual:', e);
+            return null;
+        }
+    }
+
+    saveCurrentConversationId() {
+        try {
+            if (this.currentConversationId) {
+                localStorage.setItem(this.currentConversationIdKey, this.currentConversationId);
+            } else {
+                localStorage.removeItem(this.currentConversationIdKey);
+            }
+        } catch (e) {
+            console.error('Erro ao salvar ID da conversa atual:', e);
         }
     }
 
@@ -47,6 +69,7 @@ class ConversationHistory {
 
         this.currentConversationId = conversation.id;
         this.saveConversations();
+        this.saveCurrentConversationId();
         return conversation;
     }
 
@@ -65,6 +88,7 @@ class ConversationHistory {
     loadConversation(conversationId) {
         const conversation = this.conversations.find(c => c.id === conversationId);
         this.currentConversationId = conversationId;
+        this.saveCurrentConversationId();
         return conversation;
     }
 
@@ -72,6 +96,25 @@ class ConversationHistory {
         this.conversations = [];
         this.currentConversationId = null;
         this.saveConversations();
+        this.saveCurrentConversationId();
+    }
+
+    deleteConversation(conversationId) {
+        const index = this.conversations.findIndex(c => c.id === conversationId);
+        if (index !== -1) {
+            this.conversations.splice(index, 1);
+
+            // If deleted conversation was the current one, create new conversation
+            if (this.currentConversationId === conversationId) {
+                this.currentConversationId = null;
+                const newConversation = this.createNewConversation();
+                // Don't add to history list since createNewConversation already does it
+            }
+
+            this.saveConversations();
+            return true;
+        }
+        return false;
     }
 
     getConversationPreview(conversation) {
@@ -108,6 +151,7 @@ class AIChatManager {
         this.historyList = document.getElementById('historyList');
         this.isLoading = false;
         this.historyManager = new ConversationHistory();
+        this.estadoConversacional = null; // Estado para fluxos conversacionais
 
         this.init();
     }
@@ -156,6 +200,9 @@ class AIChatManager {
     }
 
     novaConversa() {
+        // Resetar estado conversacional ao iniciar nova conversa
+        this.estadoConversacional = null;
+
         const conversation = this.historyManager.createNewConversation();
         this.carregarMensagensConversa(conversation);
         this.carregarHistorico();
@@ -326,9 +373,13 @@ class AIChatManager {
                         <div class="history-preview">${this.escapeHtml(preview)}</div>
                         <div class="history-time">${time}</div>
                     </div>
-                    <div class="history-indicator">
-                        <span class="message-count">${conversation.messages.length - 1}</span>
-                    </div>
+                    <button class="history-delete-btn" onclick="event.stopPropagation(); deleteConversation('${conversation.id}')" title="Deletar conversa">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                    </button>
                 </div>
             `;
         }).join('');
@@ -368,13 +419,20 @@ class AIChatManager {
     }
 
     async consultarIA(consulta) {
+        const payload = { consulta };
+
+        // Incluir estado conversacional se existir
+        if (this.estadoConversacional) {
+            payload.estado_conversacional = this.estadoConversacional;
+        }
+
         const response = await fetch('/api/ai/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getToken()}`
             },
-            body: JSON.stringify({ consulta })
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -382,7 +440,16 @@ class AIChatManager {
             throw new Error(error.mensagem || 'Erro na consulta');
         }
 
-        return await response.json();
+        const resultado = await response.json();
+
+        // Atualizar estado conversacional se fornecido pela API
+        if (resultado.estado_conversacional) {
+            this.estadoConversacional = resultado.estado_conversacional;
+        } else {
+            this.estadoConversacional = null; // Finalizar fluxo conversacional
+        }
+
+        return resultado;
     }
 
     adicionarMensagemUsuario(texto) {
@@ -631,6 +698,23 @@ function usarExemplo(exemplo) {
 function carregarConversa(conversationId) {
     if (window.aiChatManager) {
         window.aiChatManager.carregarConversaPorId(conversationId);
+    }
+}
+
+// Função global para deletar conversa
+function deleteConversation(conversationId) {
+    if (confirm('Tem certeza que deseja deletar esta conversa? Esta ação não pode ser desfeita.')) {
+        if (window.aiChatManager) {
+            const deleted = window.aiChatManager.historyManager.deleteConversation(conversationId);
+            if (deleted) {
+                // If the current conversation was deleted, we need to load the new current conversation
+                const currentConversation = window.aiChatManager.historyManager.getCurrentConversation();
+                if (currentConversation) {
+                    window.aiChatManager.carregarMensagensConversa(currentConversation);
+                }
+                window.aiChatManager.carregarHistorico();
+            }
+        }
     }
 }
 
