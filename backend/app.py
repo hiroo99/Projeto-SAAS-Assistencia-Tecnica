@@ -137,6 +137,10 @@ def create_app():
     def ai():
         return render_template("ai.html")
 
+    @app.route("/profile")
+    def profile():
+        return render_template("profile.html")
+
     # Rota para favicon.ico
     @app.route("/favicon.ico")
     def favicon():

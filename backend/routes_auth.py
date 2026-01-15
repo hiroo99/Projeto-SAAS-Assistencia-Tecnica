@@ -51,11 +51,11 @@ def register():
     """Endpoint para registro de novos usuários (apenas para desenvolvimento)."""
     data = request.get_json() or {}
 
-    obrigatorios = ["usuario", "senha", "nome"]
+    obrigatorios = ["usuario", "senha", "nome", "cpf", "telefone"]
     if not all(data.get(c) for c in obrigatorios):
         return jsonify({
             "erro": "Dados inválidos",
-            "mensagem": "Usuário, senha e nome são obrigatórios"
+            "mensagem": "Usuário, senha, nome, CPF e telefone são obrigatórios"
         }), 400
 
     # Verifica se usuário já existe
@@ -63,6 +63,15 @@ def register():
         return jsonify({
             "erro": "Usuário já existe",
             "mensagem": "Este nome de usuário já está em uso"
+        }), 409
+
+    # Verifica se CPF já existe
+    import re
+    cpf_limpo = re.sub(r'\D', '', data["cpf"]) if data.get("cpf") else ""
+    if cpf_limpo and Usuario.query.filter_by(cpf=cpf_limpo).first():
+        return jsonify({
+            "erro": "CPF já existe",
+            "mensagem": "Este CPF já está cadastrado"
         }), 409
 
     # Verifica se email já existe (se fornecido)
@@ -77,6 +86,8 @@ def register():
         usuario=data["usuario"].strip(),
         senha_hash=generate_password_hash(data["senha"]),
         nome=data["nome"].strip(),
+        cpf=cpf_limpo,
+        telefone=(data.get("telefone") or "").strip() or None,
         email=(data.get("email") or "").strip() or None,
         ativo=True
     )
@@ -123,7 +134,61 @@ def get_current_user():
         "id": user.id,
         "usuario": user.usuario,
         "nome": user.nome,
+        "cpf": user.cpf,
+        "telefone": user.telefone,
         "email": user.email,
         "ativo": user.ativo,
         "dataCadastro": user.criado_em.isoformat() if user.criado_em else None
+    }), 200
+
+
+@bp.put("/me")
+def update_current_user():
+    """Endpoint para atualizar informações do usuário atual."""
+    from auth_utils import get_usuario_atual
+
+    usuario_atual = get_usuario_atual()
+    if not usuario_atual:
+        return jsonify({
+            "erro": "Não autenticado",
+            "mensagem": "Token de autenticação necessário"
+        }), 401
+
+    # Busca usuário completo no banco
+    user = Usuario.query.get(usuario_atual["id"])
+    if not user:
+        return jsonify({
+            "erro": "Usuário não encontrado",
+            "mensagem": "O usuário associado ao token não foi encontrado"
+        }), 404
+
+    data = request.get_json() or {}
+
+    # Validações - apenas senha pode ser alterada
+    if not data or "senha" not in data:
+        return jsonify({
+            "erro": "Dados inválidos",
+            "mensagem": "Apenas a senha pode ser alterada no perfil"
+        }), 400
+
+    # Atualiza senha
+    senha = data["senha"]
+    if not senha or len(senha) < 6:
+        return jsonify({
+            "erro": "Senha inválida",
+            "mensagem": "A senha deve ter pelo menos 6 caracteres"
+        }), 400
+    user.senha_hash = generate_password_hash(senha)
+
+    # Salva alterações
+    db.session.commit()
+
+    return jsonify({
+        "id": user.id,
+        "usuario": user.usuario,
+        "nome": user.nome,
+        "email": user.email,
+        "ativo": user.ativo,
+        "dataCadastro": user.criado_em.isoformat() if user.criado_em else None,
+        "mensagem": "Perfil atualizado com sucesso"
     }), 200

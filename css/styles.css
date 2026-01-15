@@ -385,6 +385,165 @@
             }
         }
 
+        /* PROFILE DROPDOWN */
+        .profile-dropdown-container {
+            position: relative;
+        }
+
+        .profile-btn {
+            position: relative;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        .profile-dropdown-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .profile-dropdown-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-dropdown-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), #0891b2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-dropdown-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-dropdown-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-dropdown-email {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-dropdown-menu {
+            padding: 8px 0;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .profile-dropdown-item svg {
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .profile-dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 8px 0;
+        }
+
+        .logout-btn {
+            color: #dc2626 !important;
+        }
+
+        .logout-btn:hover {
+            background: #fef2f2 !important;
+        }
+
+        .logout-btn svg {
+            color: #dc2626 !important;
+        }
+
+        /* MODO ESCURO - PROFILE DROPDOWN */
+        html.dark-mode .profile-dropdown {
+            background: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .profile-dropdown-header {
+            background: var(--bg-secondary);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .profile-dropdown-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        html.dark-mode .logout-btn:hover {
+            background: #451a1a !important;
+        }
+
+        /* RESPONSIVO - PROFILE DROPDOWN */
+        @media (max-width: 480px) {
+            .profile-dropdown {
+                width: 260px;
+                right: -10px;
+            }
+
+            .profile-dropdown-header {
+                padding: 12px 16px;
+            }
+
+            .profile-dropdown-item {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
         /* LAYOUT PRINCIPAL */
         .main-layout {
             display: flex;
