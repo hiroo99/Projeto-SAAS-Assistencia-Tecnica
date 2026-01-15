@@ -55,6 +55,18 @@
             z-index: 100;
         }
 
+        /* HEADER - MODO CLARO */
+        html:not(.dark-mode) .header {
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        html:not(.dark-mode) .header .brand h2,
+        html:not(.dark-mode) .header .brand p,
+        html:not(.dark-mode) .header .icon-btn {
+            color: #0f172a !important;
+        }
+
         .logo-section {
             display: flex;
             align-items: center;
@@ -72,6 +84,12 @@
             color: white;
             font-weight: bold;
             overflow: hidden;
+        }
+
+        /* LOGO - MODO CLARO */
+        html:not(.dark-mode) .logo {
+            background: #ffffff;
+            color: #0f172a;
         }
 
         .logo img {
@@ -385,6 +403,20 @@
             height: calc(100vh - 80px);
             overflow: hidden;
             z-index: 85;
+        }
+
+        /* SIDEBAR - MODO CLARO */
+        html:not(.dark-mode) .sidebar {
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        html:not(.dark-mode) .sidebar .sidebar-menu a {
+            color: #0f172a;
+        }
+
+        html:not(.dark-mode) .sidebar .sidebar-title {
+            color: #6b7280;
         }
 
         .sidebar-section {
