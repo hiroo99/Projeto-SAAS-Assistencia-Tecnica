@@ -48,6 +48,7 @@ def create_app():
     from routes_estoque import bp as estoque_bp
     from routes_notificacoes import bp as notificacoes_bp
     from routes_ai import bp as ai_bp
+    from routes_solucoes import bp as solucoes_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(clientes_bp, url_prefix="/api/clientes")
@@ -55,6 +56,7 @@ def create_app():
     app.register_blueprint(estoque_bp, url_prefix="/api/estoque")
     app.register_blueprint(notificacoes_bp)
     app.register_blueprint(ai_bp, url_prefix="/api/ai")
+    app.register_blueprint(solucoes_bp)
 
     @app.get("/api/health")
     def health_check():

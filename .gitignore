@@ -1,8 +1,11 @@
+
 # Python cache
 __pycache__/
+**/__pycache__/
 *.pyc
-*.pyo
 
-# Banco local (SQLite)
-*.db
+# Banco de dados SQLite
 backend/app.db
+*.db
+
+
