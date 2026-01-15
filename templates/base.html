@@ -59,7 +59,12 @@
           id="searchInput"
           placeholder="Buscar por cliente, OS, produto..."
         />
-        <button class="search-btn">🔍</button>
+        <button class="search-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </button>
       </div>
 
       <div class="header-actions">
@@ -204,49 +209,91 @@
               <a
                 href="/dashboard"
                 class="{% if active_page == 'dashboard' %}active{% endif %}"
-                ><span class="menu-icon">🏠</span> Dashboard</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                  </svg>
+                </span> Dashboard</a
               >
             </li>
             <li>
               <a
                 href="/atendimento"
                 class="{% if active_page == 'atendimento' %}active{% endif %}"
-                ><span class="menu-icon">⚙️</span> Atendimento</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                </span> Atendimento</a
               >
             </li>
             <li>
               <a
                 href="/clientes"
                 class="{% if active_page == 'clientes' %}active{% endif %}"
-                ><span class="menu-icon">👥</span> Clientes</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </span> Clientes</a
               >
             </li>
             <li>
               <a
                 href="/estoque"
                 class="{% if active_page == 'estoque' %}active{% endif %}"
-                ><span class="menu-icon">📦</span> Estoque</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="7.5 4.27 12 6.11 16.5 4.27"></polyline>
+                    <line x1="12" y1="22.76" x2="12" y2="17"></line>
+                  </svg>
+                </span> Estoque</a
               >
             </li>
             <li>
               <a
                 href="/os"
                 class="{% if active_page == 'os' %}active{% endif %}"
-                ><span class="menu-icon">📋</span> Ordens de Serviço</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10,9 9,9 8,9"></polyline>
+                  </svg>
+                </span> Ordens de Serviço</a
               >
             </li>
             <li>
               <a
                 href="/financeiro"
                 class="{% if active_page == 'financeiro' %}active{% endif %}"
-                ><span class="menu-icon">💰</span> Financeiro</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </span> Financeiro</a
               >
             </li>
             <li>
               <a
                 href="/ai"
                 class="{% if active_page == 'ai' %}active{% endif %}"
-                ><span class="menu-icon">🤖</span> Assistente IA</a
+                ><span class="menu-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 0 2-2V4a2 2 0 0 1 2-2z"></path>
+                    <path d="M8 12v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4"></path>
+                    <path d="M4 12h16"></path>
+                  </svg>
+                </span> Assistente IA</a
               >
             </li>
           </ul>
