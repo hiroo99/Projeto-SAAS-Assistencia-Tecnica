@@ -6,3 +6,4 @@ flask-jwt-extended
 python-dotenv
 pyjwt
 mistralai==0.4.2
+pymysql
