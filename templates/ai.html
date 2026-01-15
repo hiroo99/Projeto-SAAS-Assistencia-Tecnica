@@ -1,18 +1,20 @@
-{% extends "base.html" %}
-
-{% block title %}Assistente IA - TechAI Assist{% endblock %}
-
-{% set active_page = "ai" %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Assistente - TechAI Assist{% endblock
+%} {% set active_page = "ai" %} {% block content %}
 <div class="page-header">
   <div class="header-content">
     <div>
-      <h1>🤖 Assistente IA</h1>
+      <h1>🤖 Assistente</h1>
       <p>Consulte dados do sistema usando linguagem natural</p>
     </div>
     <button id="newConversationBtn" class="btn-secondary new-conversation-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
         <line x1="12" y1="5" x2="12" y2="19"></line>
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
@@ -30,20 +32,23 @@
         </div>
         <div class="message-content">
           <div class="message-header">
-            <span class="message-author">Assistente IA</span>
+            <span class="message-author">Assistente</span>
             <span class="message-time">Agora</span>
           </div>
           <div class="message-text">
-            Olá! Sou seu assistente inteligente. Posso ajudar você a consultar informações sobre:
-            <br><br>
-            • <strong>Ordens de Serviço:</strong> "cliente da OS005", "status da OS010", "OS concluídas hoje"
-            <br>
-            • <strong>Clientes:</strong> "dados do João Silva", "telefone do cliente X"
-            <br>
+            Olá! Sou seu assistente inteligente. Posso ajudar você a consultar
+            informações sobre:
+            <br /><br />
+            • <strong>Ordens de Serviço:</strong> "cliente da OS005", "status da
+            OS010", "OS concluídas hoje"
+            <br />
+            • <strong>Clientes:</strong> "dados do João Silva", "telefone do
+            cliente X"
+            <br />
             • <strong>Financeiro:</strong> "receitas do mês", "total de vendas"
-            <br>
-            • <strong>Estoque:</strong> "produtos com pouco estoque", "quantidade do produto Y"
-            <br><br>
+            <br />
+            • <strong>Estoque:</strong> "produtos com pouco estoque",
+            "quantidade do produto Y" <br /><br />
             O que você gostaria de saber?
           </div>
         </div>
@@ -59,7 +64,14 @@
           maxlength="500"
         />
         <button id="sendButton" class="send-button">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22,2 15,22 11,13 2,9"></polygon>
           </svg>
@@ -74,8 +86,19 @@
   <div class="ai-history-section">
     <div class="history-header">
       <h3>📚 Histórico de Conversas</h3>
-      <button id="clearHistoryBtn" class="clear-history-btn" title="Limpar histórico">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        id="clearHistoryBtn"
+        class="clear-history-btn"
+        title="Limpar histórico"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M3 6h18"></path>
           <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -84,8 +107,18 @@
     </div>
     <div class="history-list" id="historyList">
       <div class="history-empty">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          opacity="0.5"
+        >
+          <path
+            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+          ></path>
           <polyline points="14,2 14,8 20,8"></polyline>
           <line x1="16" y1="13" x2="8" y2="13"></line>
           <line x1="16" y1="17" x2="8" y2="17"></line>
@@ -97,8 +130,6 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
+{% endblock %} {% block extra_scripts %}
 <script src="/js/ai.js"></script>
 {% endblock %}
