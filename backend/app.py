@@ -133,6 +133,10 @@ def create_app():
     def register():
         return render_template("register.html")
 
+    @app.route("/ai")
+    def ai():
+        return render_template("ai.html")
+
     # Rota para favicon.ico
     @app.route("/favicon.ico")
     def favicon():
