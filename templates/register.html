@@ -637,9 +637,26 @@
             toggleLoading(true);
 
             try {
-                // TODO: Implementar chamada para API de cadastro
-                // Por enquanto, simula o cadastro
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Simula delay
+                // Faz chamada para API de registro
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        usuario: dados.usuario,
+                        senha: dados.senha,
+                        nome: dados.nome,
+                        email: dados.email
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.mensagem || 'Erro no registro');
+                }
+
+                const data = await response.json();
 
                 mostrarSucesso('Conta criada com sucesso! Redirecionando para o login...');
 
