@@ -252,6 +252,11 @@ function validarFormularioCliente(dados) {
 function formatarCpfCnpj(valor) {
   valor = valor.replace(/\D/g, "");
 
+  // Limita a 14 dígitos (CNPJ)
+  if (valor.length > 14) {
+    valor = valor.substring(0, 14);
+  }
+
   if (valor.length <= 11) {
     // Formata como CPF: 000.000.000-00
     valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
@@ -276,14 +281,27 @@ function formatarCpfCnpj(valor) {
 function formatarTelefone(valor) {
   valor = valor.replace(/\D/g, "");
 
-  if (valor.length <= 10) {
-    // Telefone fixo: (00) 0000-0000
-    valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
-  } else {
-    // Celular: (00) 00000-0000
-    valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+  // Limita a 11 dígitos (DDD + 9 + 8 dígitos)
+  if (valor.length > 11) {
+    valor = valor.substring(0, 11);
+  }
+
+  // Formato: (99) 9 9999-9999
+  if (valor.length <= 11) {
+    valor = valor.replace(/^(\d{2})(\d{1})(\d{4})(\d{4})$/, "($1) $2 $3-$4");
+    // Para números menores, aplica formatação parcial
+    if (valor.length >= 2) {
+      valor = valor.replace(
+        /^(\d{2})(\d{0,1})(\d{0,4})(\d{0,4})$/,
+        function (match, ddd, nono, primeiros, segundos) {
+          let result = `(${ddd}`;
+          if (nono) result += `) ${nono}`;
+          if (primeiros) result += ` ${primeiros}`;
+          if (segundos) result += `-${segundos}`;
+          return result;
+        }
+      );
+    }
   }
 
   return valor;
