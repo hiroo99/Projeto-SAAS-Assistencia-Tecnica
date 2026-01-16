@@ -6,30 +6,29 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
 
 <!-- AÇÕES RÁPIDAS -->
 <div class="quick-actions">
+  <div class="action-card" onclick="abrirNovoCliente()">
+    <div class="action-card-icon"><i class="bi bi-person-plus"></i></div>
+    <h3>Novo Cliente</h3>
+    <p>Cadastrar novo cliente</p>
+  </div>
 
-   <div class="action-card" onclick="abrirNovoCliente()">
-      <div class="action-card-icon"><i class="bi bi-person-plus"></i></div>
-      <h3>Novo Cliente</h3>
-      <p>Cadastrar novo cliente</p>
-    </div>
+  <div class="action-card" onclick="abrirNovaOS()">
+    <div class="action-card-icon"><i class="bi bi-file-earmark-plus"></i></div>
+    <h3>Nova OS</h3>
+    <p>Criar nova ordem de serviço</p>
+  </div>
 
-    <div class="action-card" onclick="abrirNovaOS()">
-      <div class="action-card-icon"><i class="bi bi-file-earmark-plus"></i></div>
-      <h3>Nova OS</h3>
-      <p>Criar nova ordem de serviço</p>
-    </div>
+  <div class="action-card" onclick="consultarEstoque()">
+    <div class="action-card-icon"><i class="bi bi-box-seam"></i></div>
+    <h3>Consultar Estoque</h3>
+    <p>Verificar disponibilidade de peças</p>
+  </div>
 
-    <div class="action-card" onclick="consultarEstoque()">
-      <div class="action-card-icon"><i class="bi bi-box-seam"></i></div>
-      <h3>Consultar Estoque</h3>
-      <p>Verificar disponibilidade de peças</p>
-    </div>
-
-    <div class="action-card" onclick="buscarCliente()">
-      <div class="action-card-icon"><i class="bi bi-search"></i></div>
-      <h3>Buscar Cliente</h3>
-      <p>Localizar cliente existente</p>
-    </div>
+  <div class="action-card" onclick="buscarCliente()">
+    <div class="action-card-icon"><i class="bi bi-search"></i></div>
+    <h3>Buscar Cliente</h3>
+    <p>Localizar cliente existente</p>
+  </div>
 </div>
 
 <!-- TABELA DE OS PARA ATENDIMENTO -->
@@ -113,6 +112,36 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
           rows="4"
           placeholder="Descreva o problema reportado pelo cliente"
           required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <label for="diagnosticoTecnico">Pré-diagnóstico</label>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnGerarDiagnosticoNovo"
+            onclick="gerarDiagnosticoAINovo()"
+            style="font-size: 12px; padding: 6px 12px"
+          >
+            <i class="bi bi-cpu"></i> Diagnóstico IA
+          </button>
+        </div>
+        <textarea
+          id="diagnosticoTecnico"
+          name="diagnosticoTecnico"
+          rows="3"
+          placeholder="Pré-diagnóstico gerado pela IA ou realizado pelo técnico"
+          style="resize: vertical; min-height: 80px"
+          oninput="autoResizeTextarea(this)"
         ></textarea>
       </div>
 
@@ -321,7 +350,9 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon yellow"><i class="bi bi-exclamation-triangle"></i></div>
+          <div class="stat-icon yellow">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
           <div class="stat-info">
             <h3 id="modalEstoqueBaixo">0</h3>
             <p>Estoque Baixo</p>
@@ -329,7 +360,9 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <div class="stat-icon red">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
           <div class="stat-info">
             <h3 id="modalEstoqueCritico">0</h3>
             <p>Estoque Crítico</p>
@@ -435,9 +468,21 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
           />
         </div>
         <div class="form-group">
+          <label for="editStatus">Status *</label>
+          <select id="editStatus" name="status" required>
+            <option value="aguardando">Aguardando</option>
+            <option value="em_reparo">Em Reparo</option>
+            <option value="pronto">Pronto</option>
+            <option value="entregue">Entregue</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
           <label for="editPrioridade">Prioridade *</label>
           <select id="editPrioridade" name="prioridade" required>
-            <option value="">Selecione...</option>
             <option value="baixa">Baixa</option>
             <option value="normal" selected>Normal</option>
             <option value="alta">Alta</option>
@@ -535,6 +580,8 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
           name="diagnosticoTecnico"
           rows="3"
           placeholder="Pré-diagnóstico gerado pela IA ou realizado pelo técnico"
+          style="resize: vertical; min-height: 80px"
+          oninput="autoResizeTextarea(this)"
         ></textarea>
       </div>
 
@@ -815,6 +862,14 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
    */
   function abrirNovaOS() {
     const modal = document.getElementById("modalNovaOS");
+    const form = document.getElementById("formNovaOS");
+
+    // Reseta o formulário para limpar qualquer dado anterior
+    form.reset();
+
+    // Limpa explicitamente o campo de diagnóstico técnico
+    document.getElementById("diagnosticoTecnico").value = "";
+
     const selectCliente = document.getElementById("clienteOS");
 
     // Carrega clientes no select
@@ -1146,11 +1201,11 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
 
     modalTitle.textContent = "Editar Ordem de Serviço";
 
-    // Preenche o formulário com os dados da OS
-    preencherFormularioEdicao(os);
-
-    // Carrega clientes no select
+    // Carrega clientes no select primeiro
     carregarClientesSelectEdicao();
+
+    // Depois preenche o formulário com os dados da OS
+    preencherFormularioEdicao(os);
 
     // Configura event listener do formulário
     configurarEventListenerFormularioEdicao();
@@ -1230,6 +1285,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
   function preencherFormularioEdicao(os) {
     document.getElementById("editOsId").value = os.id;
     document.getElementById("editNumeroOS").value = os.numeroOS;
+    document.getElementById("editStatus").value = os.status || "aguardando";
     document.getElementById("editPrioridade").value = os.prioridade || "normal";
     document.getElementById("editCliente").value = os.clienteId;
     document.getElementById("editTipoAparelho").value = os.tipoAparelho;
@@ -1279,6 +1335,67 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
       .getElementById("editProblemaRelatado")
       .value.trim();
     const diagnosticoField = document.getElementById("editDiagnosticoTecnico");
+
+    // Validação
+    if (!tipoAparelho || !marcaModelo || !problemaRelatado) {
+      alert(
+        "Para gerar o diagnóstico, é necessário preencher: Tipo de Aparelho, Marca/Modelo e Problema Relatado."
+      );
+      return;
+    }
+
+    // Desabilita botão durante processamento
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Gerando...";
+
+    try {
+      console.log("🤖 Gerando diagnóstico com IA...");
+      const resultado = await gerarDiagnosticoApi({
+        tipoAparelho: tipoAparelho,
+        marcaModelo: marcaModelo,
+        problema: problemaRelatado,
+      });
+
+      if (resultado && resultado.diagnostico) {
+        diagnosticoField.value = resultado.diagnostico;
+        console.log("✅ Diagnóstico gerado com sucesso!");
+        alert("Pré-diagnóstico gerado com sucesso pela IA!");
+      } else {
+        throw new Error("Resposta da IA inválida");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao gerar diagnóstico:", error);
+      alert(
+        "Erro ao gerar diagnóstico com IA. Tente novamente.\n\n" +
+          (error.message || "Erro desconhecido")
+      );
+    } finally {
+      // Reabilita botão
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  }
+
+  /**
+   * Função para auto-resize da textarea
+   */
+  function autoResizeTextarea(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+  }
+
+  /**
+   * Gera diagnóstico com IA para nova OS
+   */
+  async function gerarDiagnosticoAINovo() {
+    const btn = document.getElementById("btnGerarDiagnosticoNovo");
+    const tipoAparelho = document.getElementById("tipoAparelho").value.trim();
+    const marcaModelo = document.getElementById("marcaModelo").value.trim();
+    const problemaRelatado = document
+      .getElementById("problemaRelatado")
+      .value.trim();
+    const diagnosticoField = document.getElementById("diagnosticoTecnico");
 
     // Validação
     if (!tipoAparelho || !marcaModelo || !problemaRelatado) {
