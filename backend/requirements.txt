@@ -1,9 +1,11 @@
 flask
-flask_sqlalchemy
-flask_migrate
+flask-sqlalchemy
+flask-migrate
 flask-cors
 flask-jwt-extended
 python-dotenv
 pyjwt
 mistralai==0.4.2
 pymysql
+psycopg2-binary
+gunicorn
