@@ -232,24 +232,22 @@
         <form id="registerForm" class="register-form">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="nome">Nome Completo *</label>
+                    <label for="nome">Nome Completo</label>
                     <input
                         type="text"
                         id="nome"
                         name="nome"
                         placeholder="Digite seu nome completo"
-                        required
                         autocomplete="name"
                     >
                 </div>
                 <div class="form-group">
-                    <label for="cpf">CPF *</label>
+                    <label for="cpf">CPF</label>
                     <input
                         type="text"
                         id="cpf"
                         name="cpf"
                         placeholder="000.000.000-00"
-                        required
                         maxlength="14"
                         autocomplete="cpf"
                     >
@@ -257,37 +255,34 @@
             </div>
 
             <div class="form-group">
-                <label for="email">E-mail *</label>
+                <label for="email">E-mail</label>
                 <input
                     type="email"
                     id="email"
                     name="email"
                     placeholder="seu@email.com"
-                    required
                     autocomplete="email"
                 >
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="telefone">Telefone *</label>
+                    <label for="telefone">Telefone</label>
                     <input
                         type="tel"
                         id="telefone"
                         name="telefone"
                         placeholder="(00) 00000-0000"
-                        required
                         autocomplete="tel"
                     >
                 </div>
                 <div class="form-group">
-                    <label for="usuario">Nome de Usuário *</label>
+                    <label for="usuario">Nome de Usuário</label>
                     <input
                         type="text"
                         id="usuario"
                         name="usuario"
                         placeholder="Escolha um nome de usuário"
-                        required
                         autocomplete="username"
                     >
                 </div>
@@ -295,25 +290,23 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="senha">Senha *</label>
+                    <label for="senha">Senha</label>
                     <input
                         type="password"
                         id="senha"
                         name="senha"
                         placeholder="Digite sua senha"
-                        required
                         autocomplete="new-password"
                     >
                     <div id="passwordStrength" class="password-strength" style="display: none;"></div>
                 </div>
                 <div class="form-group">
-                    <label for="confirmarSenha">Confirmar Senha *</label>
+                    <label for="confirmarSenha">Confirmar Senha</label>
                     <input
                         type="password"
                         id="confirmarSenha"
                         name="confirmarSenha"
                         placeholder="Confirme sua senha"
-                        required
                         autocomplete="new-password"
                     >
                 </div>
@@ -573,54 +566,56 @@
             let erros = [];
             let campoErro = null;
 
-            // Nome
-            if (!dados.nome || dados.nome.length < 3) {
-                erros.push('Nome deve ter pelo menos 3 caracteres');
-                if (!campoErro) campoErro = nomeInput;
-            }
-
-            // CPF
-            if (!dados.cpf || !validarCPF(dados.cpf)) {
-                erros.push('CPF inválido');
-                if (!campoErro) campoErro = cpfInput;
-            }
-
-            // Email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!dados.email || !emailRegex.test(dados.email)) {
-                erros.push('E-mail inválido');
-                if (!campoErro) campoErro = emailInput;
-            }
-
-            // Telefone
-            if (!dados.telefone || dados.telefone.length < 10) {
-                erros.push('Telefone deve ter pelo menos 10 dígitos');
-                if (!campoErro) campoErro = telefoneInput;
-            }
-
-            // Usuário
+            // Usuário (obrigatório)
             if (!dados.usuario || dados.usuario.length < 3) {
                 erros.push('Nome de usuário deve ter pelo menos 3 caracteres');
                 if (!campoErro) campoErro = usuarioInput;
             }
 
-            // Senha
+            // Senha (obrigatória)
             if (!dados.senha || dados.senha.length < 8) {
                 erros.push('Senha deve ter pelo menos 8 caracteres');
                 if (!campoErro) campoErro = senhaInput;
             }
 
             // Confirmação de senha
-            if (dados.senha !== dados.confirmarSenha) {
+            if (dados.senha && dados.senha !== dados.confirmarSenha) {
                 erros.push('As senhas não coincidem');
                 if (!campoErro) campoErro = confirmarSenhaInput;
             }
 
             // Verifica força da senha
-            const { nivel } = verificarForcaSenha(dados.senha);
-            if (nivel === 'weak') {
-                erros.push('A senha é muito fraca. Adicione maiúsculas, números e caracteres especiais');
-                if (!campoErro) campoErro = senhaInput;
+            if (dados.senha) {
+                const { nivel } = verificarForcaSenha(dados.senha);
+                if (nivel === 'weak') {
+                    erros.push('A senha é muito fraca. Adicione maiúsculas, números e caracteres especiais');
+                    if (!campoErro) campoErro = senhaInput;
+                }
+            }
+
+            // Nome (opcional, mas se fornecido, validar)
+            if (dados.nome && dados.nome.length < 3) {
+                erros.push('Nome deve ter pelo menos 3 caracteres');
+                if (!campoErro) campoErro = nomeInput;
+            }
+
+            // CPF (opcional, mas se fornecido, validar)
+            if (dados.cpf && !validarCPF(dados.cpf)) {
+                erros.push('CPF inválido');
+                if (!campoErro) campoErro = cpfInput;
+            }
+
+            // Email (opcional, mas se fornecido, validar)
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (dados.email && !emailRegex.test(dados.email)) {
+                erros.push('E-mail inválido');
+                if (!campoErro) campoErro = emailInput;
+            }
+
+            // Telefone (opcional, mas se fornecido, validar)
+            if (dados.telefone && dados.telefone.length < 10) {
+                erros.push('Telefone deve ter pelo menos 10 dígitos');
+                if (!campoErro) campoErro = telefoneInput;
             }
 
             // Se há erros, mostra o primeiro
@@ -647,6 +642,8 @@
                         usuario: dados.usuario,
                         senha: dados.senha,
                         nome: dados.nome,
+                        cpf: dados.cpf,
+                        telefone: dados.telefone,
                         email: dados.email
                     })
                 });

@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 
 from extensions import db
 from models import Usuario
-from auth_utils import autenticar_usuario, gerar_token_jwt
+from auth_utils import autenticar_usuario, gerar_token_jwt, login_required
 
 bp = Blueprint("auth", __name__)
 
@@ -51,11 +51,12 @@ def register():
     """Endpoint para registro de novos usuários (apenas para desenvolvimento)."""
     data = request.get_json() or {}
 
-    obrigatorios = ["usuario", "senha", "nome", "cpf", "telefone"]
+    # Campos obrigatórios
+    obrigatorios = ["usuario", "senha"]
     if not all(data.get(c) for c in obrigatorios):
         return jsonify({
             "erro": "Dados inválidos",
-            "mensagem": "Usuário, senha, nome, CPF e telefone são obrigatórios"
+            "mensagem": "Usuário e senha são obrigatórios"
         }), 400
 
     # Verifica se usuário já existe
@@ -67,7 +68,7 @@ def register():
 
     # Verifica se CPF já existe
     import re
-    cpf_limpo = re.sub(r'\D', '', data["cpf"]) if data.get("cpf") else ""
+    cpf_limpo = re.sub(r'\D', '', data.get("cpf", "")) if data.get("cpf") else ""
     if cpf_limpo and Usuario.query.filter_by(cpf=cpf_limpo).first():
         return jsonify({
             "erro": "CPF já existe",
@@ -85,8 +86,8 @@ def register():
     user = Usuario(
         usuario=data["usuario"].strip(),
         senha_hash=generate_password_hash(data["senha"]),
-        nome=data["nome"].strip(),
-        cpf=cpf_limpo,
+        nome=(data.get("nome") or "").strip() or None,
+        cpf=cpf_limpo or None,
         telefone=(data.get("telefone") or "").strip() or None,
         email=(data.get("email") or "").strip() or None,
         ativo=True
@@ -111,6 +112,7 @@ def register():
 
 
 @bp.get("/me")
+@login_required
 def get_current_user():
     """Endpoint para obter informações do usuário atual."""
     from auth_utils import get_usuario_atual
@@ -143,6 +145,7 @@ def get_current_user():
 
 
 @bp.put("/me")
+@login_required
 def update_current_user():
     """Endpoint para atualizar informações do usuário atual."""
     from auth_utils import get_usuario_atual
