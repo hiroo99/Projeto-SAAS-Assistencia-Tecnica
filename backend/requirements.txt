@@ -9,3 +9,5 @@ mistralai==0.4.2
 pymysql
 psycopg2-binary
 gunicorn
+fuzzywuzzy
+python-levenshtein

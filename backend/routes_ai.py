@@ -95,7 +95,9 @@ def consulta_ia_api():
     data = request.get_json() or {}
 
     consulta = data.get("consulta", "").strip()
-    estado_conversacional = data.get("estado_conversacional")  # Estado para fluxos conversacionais
+    estado_conversacional = data.get(
+        "estado_conversacional"
+    )  # Estado para fluxos conversacionais
 
     if not consulta:
         return (
@@ -113,24 +115,57 @@ def consulta_ia_api():
         dados_contexto = coletar_dados_contexto()
 
         # Interpretar consulta usando IA (com suporte a estado conversacional)
-        resultado = interpretar_consulta_ia(consulta, dados_contexto, estado_conversacional)
+        # Tentar usar cache de resultado da IA primeiro
+        from ai_utils import (
+            get_cached_resultado_ia,
+            set_cached_resultado_ia,
+            interpretar_consulta_ia,
+        )
+        import hashlib
+
+        consulta_hash = None
+        if (
+            not estado_conversacional
+        ):  # Só cache para consultas normais, não conversacionais
+            consulta_hash = hashlib.md5(consulta.lower().encode()).hexdigest()
+            cached_result = get_cached_resultado_ia(consulta_hash)
+            if cached_result:
+                print("🤖 Usando resposta em cache da IA")
+                resultado = cached_result
+            else:
+                print("🤖 Consultando IA (não em cache)")
+                resultado = interpretar_consulta_ia(
+                    consulta, dados_contexto, estado_conversacional
+                )
+                # Cache apenas respostas bem-sucedidas
+                if (
+                    resultado.get("resposta")
+                    and not resultado.get("dados", {}).get("tipo") == "nao_encontrado"
+                ):
+                    set_cached_resultado_ia(consulta_hash, resultado)
+        else:
+            resultado = interpretar_consulta_ia(
+                consulta, dados_contexto, estado_conversacional
+            )
 
         # Se há uma ação para executar (como criar cliente), executa
-        if resultado.get('acao'):
-            acao = resultado['acao']
-            if acao['tipo'] == 'criar_cliente':
+        if resultado.get("acao"):
+            acao = resultado["acao"]
+            if acao["tipo"] == "criar_cliente":
                 # Criar cliente via API
                 try:
                     from routes_clientes import criar_cliente_interno
 
                     # Simular request para criar cliente
-                    cliente_criado = criar_cliente_interno(acao['dados'])
-                    resultado['dados']['cliente_criado'] = cliente_criado
+                    cliente_criado = criar_cliente_interno(acao["dados"])
+                    resultado["dados"]["cliente_criado"] = cliente_criado
 
                 except Exception as e:
                     print(f"Erro ao criar cliente via IA: {e}")
-                    resultado['resposta'] = "Cliente não pôde ser cadastrado devido a um erro técnico."
-                    resultado['dados'] = {}
+                    resultado["resposta"] = (
+                        "Cliente não pôde ser cadastrado devido a um erro técnico."
+                    )
+                    resultado["dados"] = {}
 
         return jsonify(resultado)
 
@@ -143,7 +178,7 @@ def consulta_ia_api():
                     "mensagem": "Não foi possível processar sua consulta. Tente novamente.",
                     "resposta": "Desculpe, houve um erro ao processar sua consulta.",
                     "consulta": consulta,
-                    "estado_conversacional": estado_conversacional
+                    "estado_conversacional": estado_conversacional,
                 }
             ),
             500,
@@ -153,36 +188,54 @@ def consulta_ia_api():
 def coletar_dados_contexto() -> dict:
     """
     Coleta dados de contexto de todas as tabelas para fornecer à IA.
+    Usa cache em memória para reduzir consultas ao banco.
     """
     try:
+        # Tentar usar cache primeiro
+        from ai_utils import get_cached_dados_contexto, set_cached_dados_contexto
+
+        cached_data = get_cached_dados_contexto()
+        if cached_data:
+            print("📊 Usando dados de contexto em cache")
+            return cached_data
+
+        print("📊 Carregando dados de contexto do banco")
         # Buscar clientes
         clientes = Cliente.query.filter_by(status="ativo").limit(50).all()
         clientes_data = []
         for c in clientes:
-            clientes_data.append({
-                "id": c.id,
-                "nome": c.nome,
-                "cpf_cnpj": c.cpf_cnpj,
-                "email": c.email,
-                "telefone": c.telefone,
-                "endereco": c.endereco
-            })
+            clientes_data.append(
+                {
+                    "id": c.id,
+                    "nome": c.nome,
+                    "cpf_cnpj": c.cpf_cnpj,
+                    "email": c.email,
+                    "telefone": c.telefone,
+                    "endereco": c.endereco,
+                }
+            )
 
         # Buscar OS com clientes
         os_data = []
-        ordens = OrdemServico.query.options(joinedload(OrdemServico.cliente)).limit(100).all()
+        ordens = (
+            OrdemServico.query.options(joinedload(OrdemServico.cliente))
+            .limit(100)
+            .all()
+        )
         for os in ordens:
             os_dict = {
                 "id": os.id,
                 "numeroOS": os.numero_os,
                 "clienteId": os.cliente_id,
-                "clienteNome": os.cliente.nome if os.cliente else "Cliente não informado",
+                "clienteNome": (
+                    os.cliente.nome if os.cliente else "Cliente não informado"
+                ),
                 "tipoAparelho": os.tipo_aparelho,
                 "marcaModelo": os.marca_modelo,
                 "problemaRelatado": os.problema_relatado,
                 "status": os.status,
                 "valorOrcamento": float(os.valor_orcamento or 0),
-                "dataCriacao": os.criado_em.isoformat() if os.criado_em else None
+                "dataCriacao": os.criado_em.isoformat() if os.criado_em else None,
             }
             os_data.append(os_dict)
 
@@ -190,22 +243,24 @@ def coletar_dados_contexto() -> dict:
         produtos = ProdutoEstoque.query.limit(100).all()
         produtos_data = []
         for p in produtos:
-            produtos_data.append({
-                "id": p.id,
-                "codigo": p.codigo,
-                "nome": p.nome,
-                "categoria": p.categoria,
-                "quantidade": p.quantidade,
-                "estoqueMinimo": p.estoque_minimo,
-                "precoCusto": float(p.preco_custo or 0),
-                "precoVenda": float(p.preco_venda or 0)
-            })
+            produtos_data.append(
+                {
+                    "id": p.id,
+                    "codigo": p.codigo,
+                    "nome": p.nome,
+                    "categoria": p.categoria,
+                    "quantidade": p.quantidade,
+                    "estoqueMinimo": p.estoque_minimo,
+                    "precoCusto": float(p.preco_custo or 0),
+                    "precoVenda": float(p.preco_venda or 0),
+                }
+            )
 
         # Calcular métricas financeiras
-        os_entregues = [os for os in ordens if os.status == 'entregue']
+        os_entregues = [os for os in ordens if os.status == "entregue"]
         receitas_totais = sum(float(os.valor_orcamento or 0) for os in os_entregues)
 
-        return {
+        dados_contexto = {
             "clientes": clientes_data,
             "total_clientes": len(clientes_data),
             "os": os_data,
@@ -213,8 +268,13 @@ def coletar_dados_contexto() -> dict:
             "produtos": produtos_data,
             "total_produtos": len(produtos_data),
             "receitas_totais": receitas_totais,
-            "os_entregues": len(os_entregues)
+            "os_entregues": len(os_entregues),
         }
+
+        # Salvar no cache
+        set_cached_dados_contexto(dados_contexto)
+
+        return dados_contexto
 
     except Exception as e:
         print(f"Erro ao coletar dados de contexto: {e}")
