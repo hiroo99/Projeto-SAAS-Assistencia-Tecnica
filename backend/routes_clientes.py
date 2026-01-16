@@ -27,6 +27,56 @@ def cliente_to_dict(cliente: Cliente) -> dict:
     }
 
 
+def criar_cliente_interno(dados_cliente: dict) -> dict:
+    """
+    Função interna para criar cliente (usada pela IA conversacional).
+    Retorna os dados do cliente criado.
+    """
+    # Limpa o CPF/CNPJ removendo caracteres especiais
+    cpf_cnpj_limpo = (
+        dados_cliente["cpfCnpj"].replace(".", "").replace("-", "").replace("/", "").strip()
+    )
+
+    # Verifica se o CPF/CNPJ já existe
+    cliente_existente = Cliente.query.filter_by(cpf_cnpj=cpf_cnpj_limpo).first()
+    if cliente_existente:
+        raise ValueError(f"CPF/CNPJ já cadastrado: {dados_cliente['cpfCnpj']}")
+
+    cliente = Cliente(
+        nome=dados_cliente["nome"].strip(),
+        cpf_cnpj=cpf_cnpj_limpo,
+        tipo_pessoa=dados_cliente.get("tipoPessoa") or "pessoa_fisica",
+        telefone=dados_cliente["telefone"].strip(),
+        email=(dados_cliente.get("email") or "").strip() or None,
+        endereco=(dados_cliente.get("endereco") or "").strip() or None,
+        observacoes=(dados_cliente.get("observacoes") or "").strip() or None,
+        status=dados_cliente.get("status") or "ativo",
+    )
+
+    try:
+        db.session.add(cliente)
+        db.session.commit()
+
+        # Criar notificações para todos os usuários após cadastrar cliente
+        try:
+            usuarios = Usuario.query.filter_by(ativo=True).all()
+            for usuario in usuarios:
+                criar_notificacao_cliente_novo(cliente, usuario.id)
+            db.session.commit()
+        except Exception as e:
+            print(f"Aviso: Não foi possível criar notificações para novo cliente: {e}")
+            db.session.rollback()  # Não afetar o cadastro do cliente
+
+        return cliente_to_dict(cliente)
+
+    except IntegrityError as e:
+        db.session.rollback()
+        error_str = str(e.orig).lower() if hasattr(e, "orig") else str(e).lower()
+        if "unique constraint failed" in error_str and "cpf_cnpj" in error_str:
+            raise ValueError(f"CPF/CNPJ já cadastrado: {dados_cliente['cpfCnpj']}")
+        raise
+
+
 @bp.get("/")
 @login_required
 def listar_clientes():
@@ -111,6 +161,38 @@ def criar_cliente():
 def obter_cliente(cliente_id: int):
     cliente = Cliente.query.get_or_404(cliente_id)
     return jsonify(cliente_to_dict(cliente))
+
+
+@bp.delete("/<int:cliente_id>")
+@login_required
+def deletar_cliente(cliente_id: int):
+    cliente = Cliente.query.get_or_404(cliente_id)
+
+    # Verificar se o cliente tem ordens de serviço ativas
+    from models import OrdemServico
+    os_ativas = OrdemServico.query.filter_by(cliente_id=cliente_id).filter(
+        OrdemServico.status.in_(["aguardando", "em_reparo", "pronto"])
+    ).count()
+
+    if os_ativas > 0:
+        return (
+            jsonify(
+                {
+                    "erro": "Cliente possui OS ativas",
+                    "mensagem": f"Não é possível excluir o cliente {cliente.nome} pois ele possui {os_ativas} ordem(ns) de serviço ativa(s).",
+                }
+            ),
+            400,
+        )
+
+    try:
+        db.session.delete(cliente)
+        db.session.commit()
+    except IntegrityError as e:
+        db.session.rollback()
+        raise
+
+    return "", 204
 
 
 @bp.put("/<int:cliente_id>")

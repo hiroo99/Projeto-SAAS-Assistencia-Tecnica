@@ -238,3 +238,19 @@ def consultar_status_os_publico(numero_os: str):
             ),
         }
     )
+
+
+@bp.delete("/<int:os_id>")
+@login_required
+def deletar_os(os_id: int):
+    """Exclui uma ordem de serviço."""
+    os_obj = OrdemServico.query.get_or_404(os_id)
+
+    # Verificar se a OS já foi entregue (status "entregue") - não permite exclusão
+    if os_obj.status == "entregue":
+        abort(400, description="Ordens de serviço entregues não podem ser excluídas")
+
+    db.session.delete(os_obj)
+    db.session.commit()
+
+    return "", 204

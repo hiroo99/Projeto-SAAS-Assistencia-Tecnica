@@ -6,10 +6,10 @@
   </div>
   <div class="header-actions-btn">
     <button class="export-card" onclick="exportarClientes()">
-      📊 Exportar
+      <i class="bi bi-file-earmark-spreadsheet"></i> Exportar
     </button>
     <button class="btn btn-primary" onclick="abrirModal('novoCliente')">
-      ➕ Novo Cliente
+      <i class="bi bi-plus-circle"></i> Novo Cliente
     </button>
   </div>
 </div>
@@ -17,7 +17,7 @@
 <!-- CARDS DE ESTATÍSTICAS -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon blue">👥</div>
+    <div class="stat-icon blue"><i class="bi bi-people"></i></div>
     <div class="stat-info">
       <h3 id="totalClientes">0</h3>
       <p>Total de Clientes</p>
@@ -25,7 +25,7 @@
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon green">📞</div>
+    <div class="stat-icon green"><i class="bi bi-telephone"></i></div>
     <div class="stat-info">
       <h3 id="clientesAtivos">0</h3>
       <p>Clientes Ativos</p>
@@ -33,7 +33,7 @@
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon yellow">📧</div>
+    <div class="stat-icon yellow"><i class="bi bi-envelope"></i></div>
     <div class="stat-info">
       <h3 id="comEmail">0</h3>
       <p>Com Email</p>
@@ -41,7 +41,7 @@
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon red">⚠️</div>
+    <div class="stat-icon red"><i class="bi bi-exclamation-triangle"></i></div>
     <div class="stat-info">
       <h3 id="semTelefone">0</h3>
       <p>Sem Telefone</p>
@@ -72,7 +72,7 @@
     <h2>Lista de Clientes</h2>
     <div class="table-actions">
       <button class="btn btn-secondary" onclick="limparFiltros()">
-        🔄 Limpar Filtros
+        <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
       </button>
     </div>
   </div>
@@ -287,7 +287,7 @@
       clientsTableBody.innerHTML = `
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-medium);">
-                        <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                        <div style="font-size: 48px; margin-bottom: 20px;"><i class="bi bi-people"></i></div>
                         <div>Nenhum cliente encontrado</div>
                         <div style="font-size: 14px; margin-top: 10px;">
                             ${
@@ -325,12 +325,17 @@
                         <button class="action-btn-small btn-view" onclick="visualizarCliente('${
                           cliente.id
                         }')" title="Visualizar">
-                            👁️
+                            <i class="bi bi-eye"></i>
                         </button>
                         <button class="action-btn-small btn-edit" onclick="editarCliente('${
                           cliente.id
                         }')" title="Editar">
-                            ✏️
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn-small btn-delete" onclick="excluirCliente('${
+                          cliente.id
+                        }')" title="Excluir">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </td>
@@ -586,6 +591,28 @@
       setTimeout(() => {
         editarCliente(clienteAtual.id);
       }, 300);
+    }
+  }
+
+  /**
+   * Exclui cliente
+   */
+  async function excluirCliente(id) {
+    const cliente = buscarClientePorId(id);
+    if (!cliente) return;
+
+    if (confirm(`Tem certeza que deseja excluir o cliente "${cliente.nome}"?\n\nEsta ação não pode ser desfeita.`)) {
+      try {
+        await deletarClienteApi(id);
+        alert('Cliente excluído com sucesso!');
+        await carregarClientes();
+        aplicarFiltros();
+        atualizarEstatisticas();
+      } catch (e) {
+        const mensagemErro = e.message || "Erro ao excluir cliente. Tente novamente.";
+        alert("❌ Erro: " + mensagemErro);
+        console.error("Erro ao excluir cliente:", e);
+      }
     }
   }
 

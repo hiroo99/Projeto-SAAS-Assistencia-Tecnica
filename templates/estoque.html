@@ -11,10 +11,10 @@
     <div class="header-actions-btn">
     <div class="page-header">
         <button class="export-card" onclick="exportarProdutos()">
-            📊 Exportar
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exportar
         </button>
         <button class="btn btn-primary" onclick="abrirModal('novoProduto')">
-            ➕ Novo Produto
+            <i class="bi bi-plus-circle"></i> Novo Produto
         </button>
     </div>
 </div>
@@ -22,9 +22,9 @@
 <!-- CARDS DE ESTATÍSTICAS -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon blue">
-            📦
-        </div>
+    <div class="stat-icon blue">
+        <i class="bi bi-box-seam"></i>
+    </div>
         <div class="stat-info">
             <h3 id="totalProdutos">0</h3>
             <p>Total de Produtos</p>
@@ -33,7 +33,7 @@
 
     <div class="stat-card">
         <div class="stat-icon green">
-            💰
+            <i class="bi bi-cash"></i>
         </div>
         <div class="stat-info">
             <h3 id="valorTotal">R$ 0,00</h3>
@@ -43,7 +43,7 @@
 
     <div class="stat-card">
         <div class="stat-icon yellow">
-            ⚠️
+            <i class="bi bi-exclamation-triangle"></i>
         </div>
         <div class="stat-info">
             <h3 id="estoqueBaixo">0</h3>
@@ -53,7 +53,7 @@
 
     <div class="stat-card">
         <div class="stat-icon red">
-            🚨
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <div class="stat-info">
             <h3 id="estoqueCritico">0</h3>
@@ -90,7 +90,7 @@
         <h2>Lista de Produtos</h2>
         <div class="table-actions">
             <button class="btn btn-secondary" onclick="limparFiltros()">
-                🔄 Limpar Filtros
+                <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
             </button>
         </div>
     </div>

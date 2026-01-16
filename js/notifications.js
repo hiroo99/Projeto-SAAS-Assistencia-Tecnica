@@ -158,12 +158,12 @@ class NotificationManager {
 
     getIconForTipo(tipo) {
         const icones = {
-            'os_atrasada': '⏰',
-            'estoque_critico': '⚠️',
-            'os_pronta': '✅',
-            'cliente_novo': '👤'
+            'os_atrasada': '<i class="bi bi-hourglass"></i>',
+            'estoque_critico': '<i class="bi bi-exclamation-triangle"></i>',
+            'os_pronta': '<i class="bi bi-check-circle"></i>',
+            'cliente_novo': '<i class="bi bi-person"></i>'
         };
-        return icones[tipo] || '🔔';
+        return icones[tipo] || '<i class="bi bi-bell"></i>';
     }
 
     formatarTempo(dataString) {

@@ -95,6 +95,8 @@ def consulta_ia_api():
     data = request.get_json() or {}
 
     consulta = data.get("consulta", "").strip()
+    estado_conversacional = data.get("estado_conversacional")  # Estado para fluxos conversacionais
+
     if not consulta:
         return (
             jsonify(
@@ -110,8 +112,25 @@ def consulta_ia_api():
         # Coletar dados de contexto do sistema
         dados_contexto = coletar_dados_contexto()
 
-        # Interpretar consulta usando IA
-        resultado = interpretar_consulta_ia(consulta, dados_contexto)
+        # Interpretar consulta usando IA (com suporte a estado conversacional)
+        resultado = interpretar_consulta_ia(consulta, dados_contexto, estado_conversacional)
+
+        # Se há uma ação para executar (como criar cliente), executa
+        if resultado.get('acao'):
+            acao = resultado['acao']
+            if acao['tipo'] == 'criar_cliente':
+                # Criar cliente via API
+                try:
+                    from routes_clientes import criar_cliente_interno
+
+                    # Simular request para criar cliente
+                    cliente_criado = criar_cliente_interno(acao['dados'])
+                    resultado['dados']['cliente_criado'] = cliente_criado
+
+                except Exception as e:
+                    print(f"Erro ao criar cliente via IA: {e}")
+                    resultado['resposta'] = "Cliente não pôde ser cadastrado devido a um erro técnico."
+                    resultado['dados'] = {}
 
         return jsonify(resultado)
 
@@ -123,7 +142,8 @@ def consulta_ia_api():
                     "erro": "Erro na consulta IA",
                     "mensagem": "Não foi possível processar sua consulta. Tente novamente.",
                     "resposta": "Desculpe, houve um erro ao processar sua consulta.",
-                    "consulta": consulta
+                    "consulta": consulta,
+                    "estado_conversacional": estado_conversacional
                 }
             ),
             500,
