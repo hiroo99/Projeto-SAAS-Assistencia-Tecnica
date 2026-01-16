@@ -8,11 +8,11 @@
     <!-- PAGE HEADER -->
     <div class="page-header">
         <div class="page-title">
-            <h1>👤 Meu Perfil</h1>
+            <h1><i class="bi bi-person-circle"></i> Meu Perfil</h1>
         </div>
         <div class="header-actions-btn">
             <button class="btn btn-primary" onclick="abrirModalAlterarSenha()">
-                🔑 Alterar Senha
+                <i class="bi bi-key"></i> Alterar Senha
             </button>
         </div>
     </div>
@@ -20,7 +20,7 @@
     <!-- CARDS DE ESTATÍSTICAS -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon green">✅</div>
+            <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
             <div class="stat-info">
                 <h3 id="statusConta">Ativa</h3>
                 <p>Status da Conta</p>
@@ -28,7 +28,7 @@
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon blue">📅</div>
+            <div class="stat-icon blue"><i class="bi bi-calendar"></i></div>
             <div class="stat-info">
                 <h3 id="diasCadastrado">0</h3>
                 <p>Dias Cadastrado</p>
@@ -36,7 +36,7 @@
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon yellow">🛡️</div>
+            <div class="stat-icon yellow"><i class="bi bi-shield"></i></div>
             <div class="stat-info">
                 <h3 id="ultimaAlteracao">Nunca</h3>
                 <p>Última Alteração</p>
@@ -44,7 +44,7 @@
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon red">🔐</div>
+            <div class="stat-icon red"><i class="bi bi-lock"></i></div>
             <div class="stat-info">
                 <h3 id="nivelSeguranca">Bom</h3>
                 <p>Nível de Segurança</p>
@@ -55,17 +55,17 @@
     <!-- INFORMAÇÕES PESSOAIS -->
     <div class="profile-info-section">
         <div class="section-header">
-            <h2>📋 Informações Pessoais</h2>
+            <h2><i class="bi bi-clipboard"></i> Informações Pessoais</h2>
             <div class="table-actions">
                 <button class="btn btn-secondary" onclick="atualizarPerfil()">
-                    🔄 Atualizar
+                    <i class="bi bi-arrow-clockwise"></i> Atualizar
                 </button>
             </div>
         </div>
 
         <div class="profile-details-grid">
             <div class="detail-card">
-                <div class="detail-icon">👤</div>
+                <div class="detail-icon"><i class="bi bi-person"></i></div>
                 <div class="detail-content">
                     <label>Nome Completo</label>
                     <span id="userNome">Carregando...</span>
@@ -73,7 +73,7 @@
             </div>
 
             <div class="detail-card">
-                <div class="detail-icon">🆔</div>
+                <div class="detail-icon"><i class="bi bi-person-vcard"></i></div>
                 <div class="detail-content">
                     <label>CPF</label>
                     <span id="userCpf">Carregando...</span>
@@ -81,7 +81,7 @@
             </div>
 
             <div class="detail-card">
-                <div class="detail-icon">📧</div>
+                <div class="detail-icon"><i class="bi bi-envelope"></i></div>
                 <div class="detail-content">
                     <label>E-mail</label>
                     <span id="userEmail">Carregando...</span>
@@ -89,7 +89,7 @@
             </div>
 
             <div class="detail-card">
-                <div class="detail-icon">📱</div>
+                <div class="detail-icon"><i class="bi bi-phone"></i></div>
                 <div class="detail-content">
                     <label>Telefone</label>
                     <span id="userTelefone">Carregando...</span>
@@ -97,7 +97,7 @@
             </div>
 
             <div class="detail-card">
-                <div class="detail-icon">👨‍💻</div>
+                <div class="detail-icon"><i class="bi bi-person-workspace"></i></div>
                 <div class="detail-content">
                     <label>Nome de Usuário</label>
                     <span id="userUsername">Carregando...</span>
@@ -105,7 +105,7 @@
             </div>
 
             <div class="detail-card">
-                <div class="detail-icon">📅</div>
+                <div class="detail-icon"><i class="bi bi-calendar"></i></div>
                 <div class="detail-content">
                     <label>Data de Cadastro</label>
                     <span id="userCreatedAt">Carregando...</span>
@@ -117,13 +117,13 @@
     <!-- ATIVIDADE RECENTE -->
     <div class="activity-section">
         <div class="section-header">
-            <h2>📊 Atividade da Conta</h2>
+            <h2><i class="bi bi-bar-chart"></i> Atividade da Conta</h2>
             <p>Histórico de ações na sua conta</p>
         </div>
 
         <div class="activity-list">
             <div class="activity-item">
-                <div class="activity-icon">🔐</div>
+                <div class="activity-icon"><i class="bi bi-lock"></i></div>
                 <div class="activity-content">
                     <div class="activity-title">Senha alterada</div>
                     <div class="activity-time" id="ultimaAlteracaoSenha">Última alteração: Nunca</div>
@@ -131,7 +131,7 @@
             </div>
 
             <div class="activity-item">
-                <div class="activity-icon">📱</div>
+                <div class="activity-icon"><i class="bi bi-phone"></i></div>
                 <div class="activity-content">
                     <div class="activity-title">Último acesso</div>
                     <div class="activity-time" id="ultimoAcesso">Agora</div>
@@ -139,7 +139,7 @@
             </div>
 
             <div class="activity-item">
-                <div class="activity-icon">🎯</div>
+                <div class="activity-icon"><i class="bi bi-bullseye"></i></div>
                 <div class="activity-content">
                     <div class="activity-title">Conta criada</div>
                     <div class="activity-time" id="contaCriada">Data não disponível</div>
@@ -154,7 +154,7 @@
 <div class="modal" id="modalAlterarSenha">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>🔑 Alterar Senha</h2>
+            <h2><i class="bi bi-key"></i> Alterar Senha</h2>
             <button class="close-modal" onclick="fecharModal()">×</button>
         </div>
 
@@ -199,10 +199,10 @@
 
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" id="resetBtn">
-                    🔄 Limpar
+                    <i class="bi bi-arrow-clockwise"></i> Limpar
                 </button>
                 <button type="submit" class="btn btn-primary" id="changePasswordBtn">
-                    🔐 Alterar Senha
+                    <i class="bi bi-lock"></i> Alterar Senha
                 </button>
             </div>
         </form>
@@ -573,7 +573,7 @@
                     limparFormularioSenha();
                 } finally {
                     changeBtn.disabled = false;
-                    changeBtn.textContent = '🔐 Alterar Senha';
+                    changeBtn.textContent = 'Alterar Senha';
                 }
             });
 

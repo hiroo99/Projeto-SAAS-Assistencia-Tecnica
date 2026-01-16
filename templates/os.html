@@ -5,9 +5,9 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     <h1>Ordens de Serviço</h1>
   </div>
   <div class="header-actions-btn">
-    <button class="export-card" onclick="exportarOS()">📊 Exportar</button>
+    <button class="export-card" onclick="exportarOS()"><i class="bi bi-file-earmark-spreadsheet"></i> Exportar</button>
     <button class="btn btn-primary" onclick="abrirModal('novaOS')">
-      ➕ Nova O.S
+      <i class="bi bi-plus-circle"></i> Nova O.S
     </button>
   </div>
 </div>
@@ -15,7 +15,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
 <!-- CARDS DE ESTATÍSTICAS -->
 <div class="stats-grid">
   <div class="stat-card" onclick="filtrarPorStatus('')">
-    <div class="stat-icon blue">📋</div>
+    <div class="stat-icon blue"><i class="bi bi-clipboard"></i></div>
     <div class="stat-info">
       <h3 id="totalOS">0</h3>
       <p>Total de O.S</p>
@@ -23,7 +23,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
   </div>
 
   <div class="stat-card" onclick="filtrarPorStatus('aguardando')">
-    <div class="stat-icon yellow">⏳</div>
+    <div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div>
     <div class="stat-info">
       <h3 id="osAguardando">0</h3>
       <p>Aguardando</p>
@@ -31,7 +31,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
   </div>
 
   <div class="stat-card" onclick="filtrarPorStatus('em_reparo')">
-    <div class="stat-icon green">🔧</div>
+    <div class="stat-icon green"><i class="bi bi-wrench"></i></div>
     <div class="stat-info">
       <h3 id="osEmReparo">0</h3>
       <p>Em Reparo</p>
@@ -39,7 +39,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
   </div>
 
   <div class="stat-card" onclick="filtrarPorStatus('atrasadas')">
-    <div class="stat-icon red">⚠️</div>
+    <div class="stat-icon red"><i class="bi bi-exclamation-triangle"></i></div>
     <div class="stat-info">
       <h3 id="osAtrasadas">0</h3>
       <p>Atrasadas</p>
@@ -80,7 +80,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     <h2>Lista de Ordens de Serviço</h2>
     <div class="table-actions">
       <button class="btn btn-secondary" onclick="limparFiltros()">
-        🔄 Limpar Filtros
+        <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
       </button>
     </div>
   </div>
@@ -227,7 +227,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
             onclick="gerarDiagnosticoAI()"
             style="font-size: 12px; padding: 6px 12px"
           >
-            🧠 Diagnóstico Preview
+            <i class="bi bi-cpu"></i> Diagnóstico Preview
           </button>
         </div>
         <textarea
@@ -511,7 +511,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
       osTableBody.innerHTML = `
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-medium);">
-                            <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                            <div style="font-size: 48px; margin-bottom: 20px;"><i class="bi bi-clipboard"></i></div>
                             <div>Nenhuma ordem de serviço encontrada</div>
                             <div style="font-size: 14px; margin-top: 10px;">
                                 ${
@@ -545,7 +545,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
                     <td>${os.clienteNome || os.cliente}</td>
                     <td>
                         <div class="aparelho-info">
-                            <div class="aparelho-icon">📱</div>
+                            <div class="aparelho-icon"><i class="bi bi-phone"></i></div>
                             <span>${os.marcaModelo}</span>
                         </div>
                     </td>
@@ -588,12 +588,17 @@ endblock %} {% set active_page = 'os' %} {% block content %}
                             <button class="action-btn-small btn-view" onclick="visualizarOS('${
                               os.id
                             }')" title="Visualizar">
-                                👁️
+                                <i class="bi bi-eye"></i>
                             </button>
                             <button class="action-btn-small btn-edit" onclick="editarOS('${
                               os.id
                             }')" title="Editar" ${entregue ? "disabled" : ""}>
-                                ✏️
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="action-btn-small btn-delete" onclick="excluirOS('${
+                              os.id
+                            }')" title="Excluir" ${entregue ? "disabled" : ""}>
+                                <i class="bi bi-trash"></i>
                             </button>
                         </div>
                     </td>
@@ -1098,7 +1103,7 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     // Desabilita botão durante processamento
     const textoOriginal = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "🧠 Gerando...";
+    btn.textContent = "Gerando...";
 
     try {
       console.log("🤖 Gerando diagnóstico com IA...");
@@ -1125,6 +1130,28 @@ endblock %} {% set active_page = 'os' %} {% block content %}
       // Reabilita botão
       btn.disabled = false;
       btn.textContent = textoOriginal;
+    }
+  }
+
+  /**
+   * Exclui OS
+   */
+  async function excluirOS(id) {
+    const os = buscarOSPorId(id);
+    if (!os) return;
+
+    if (confirm(`Tem certeza que deseja excluir a O.S "${os.numeroOS}"?\n\nEsta ação não pode ser desfeita.`)) {
+      try {
+        await deletarOSApi(id);
+        alert('O.S excluída com sucesso!');
+        await carregarOS();
+        aplicarFiltros();
+        atualizarEstatisticas();
+      } catch (e) {
+        const mensagemErro = e.message || "Erro ao excluir O.S. Tente novamente.";
+        alert("❌ Erro: " + mensagemErro);
+        console.error("Erro ao excluir OS:", e);
+      }
     }
   }
 

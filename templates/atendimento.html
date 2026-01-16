@@ -6,29 +6,30 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
 
 <!-- AÇÕES RÁPIDAS -->
 <div class="quick-actions">
-  <div class="action-card" onclick="abrirNovaOS()">
-    <div class="action-card-icon">📝</div>
-    <h3>Nova OS</h3>
-    <p>Criar nova ordem de serviço</p>
-  </div>
 
-  <div class="action-card" onclick="abrirNovoCliente()">
-    <div class="action-card-icon">👤</div>
-    <h3>Novo Cliente</h3>
-    <p>Cadastrar novo cliente</p>
-  </div>
+   <div class="action-card" onclick="abrirNovoCliente()">
+      <div class="action-card-icon"><i class="bi bi-person-plus"></i></div>
+      <h3>Novo Cliente</h3>
+      <p>Cadastrar novo cliente</p>
+    </div>
 
-  <div class="action-card" onclick="consultarEstoque()">
-    <div class="action-card-icon">📦</div>
-    <h3>Consultar Estoque</h3>
-    <p>Verificar disponibilidade de peças</p>
-  </div>
+    <div class="action-card" onclick="abrirNovaOS()">
+      <div class="action-card-icon"><i class="bi bi-file-earmark-plus"></i></div>
+      <h3>Nova OS</h3>
+      <p>Criar nova ordem de serviço</p>
+    </div>
 
-  <div class="action-card" onclick="buscarCliente()">
-    <div class="action-card-icon">🔍</div>
-    <h3>Buscar Cliente</h3>
-    <p>Pesquisar clientes cadastrados</p>
-  </div>
+    <div class="action-card" onclick="consultarEstoque()">
+      <div class="action-card-icon"><i class="bi bi-box-seam"></i></div>
+      <h3>Consultar Estoque</h3>
+      <p>Verificar disponibilidade de peças</p>
+    </div>
+
+    <div class="action-card" onclick="buscarCliente()">
+      <div class="action-card-icon"><i class="bi bi-search"></i></div>
+      <h3>Buscar Cliente</h3>
+      <p>Localizar cliente existente</p>
+    </div>
 </div>
 
 <!-- TABELA DE OS PARA ATENDIMENTO -->
@@ -304,7 +305,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
       <!-- CARDS DE ESTATÍSTICAS -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon blue">📦</div>
+          <div class="stat-icon blue"><i class="bi bi-box-seam"></i></div>
           <div class="stat-info">
             <h3 id="modalTotalProdutos">0</h3>
             <p>Total de Produtos</p>
@@ -312,7 +313,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon green">💰</div>
+          <div class="stat-icon green"><i class="bi bi-cash"></i></div>
           <div class="stat-info">
             <h3 id="modalValorTotal">R$ 0,00</h3>
             <p>Valor Total do Estoque</p>
@@ -320,7 +321,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon yellow">⚠️</div>
+          <div class="stat-icon yellow"><i class="bi bi-exclamation-triangle"></i></div>
           <div class="stat-info">
             <h3 id="modalEstoqueBaixo">0</h3>
             <p>Estoque Baixo</p>
@@ -328,7 +329,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon red">🚨</div>
+          <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
           <div class="stat-info">
             <h3 id="modalEstoqueCritico">0</h3>
             <p>Estoque Crítico</p>
@@ -526,7 +527,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
             onclick="gerarDiagnosticoAIEdit()"
             style="font-size: 12px; padding: 6px 12px"
           >
-            🧠 Diagnóstico Preview
+            <i class="bi bi-cpu"></i> Diagnóstico Preview
           </button>
         </div>
         <textarea
@@ -735,7 +736,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
       osTableBody.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-medium);">
-                            <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                            <div style="font-size: 48px; margin-bottom: 20px;"><i class="bi bi-clipboard"></i></div>
                             <div>Nenhuma ordem de serviço encontrada</div>
                             <div style="font-size: 14px; margin-top: 10px;">Crie sua primeira O.S!</div>
                         </td>
@@ -760,7 +761,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
                     <td>${os.clienteNome}</td>
                     <td>
                         <div class="aparelho-info">
-                            <div class="aparelho-icon">📱</div>
+                            <div class="aparelho-icon"><i class="bi bi-phone"></i></div>
                             <span>${os.marcaModelo}</span>
                         </div>
                     </td>
@@ -777,12 +778,12 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
                             <button class="action-btn-small btn-view" onclick="visualizarOS('${
                               os.id
                             }')" title="Visualizar">
-                                👁️
+                                <i class="bi bi-eye"></i>
                             </button>
                             <button class="action-btn-small btn-edit" onclick="editarOS('${
                               os.id
                             }')" title="Editar">
-                                ✏️
+                                <i class="bi bi-pencil"></i>
                             </button>
                         </div>
                     </td>
@@ -943,7 +944,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
       tbody.innerHTML = `
         <tr>
           <td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-medium);">
-            <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
+          <div style="font-size: 48px; margin-bottom: 20px;"><i class="bi bi-box-seam"></i></div>
             <div>Nenhum produto encontrado</div>
             <div style="font-size: 14px; margin-top: 10px;">Ajuste os filtros para ver produtos.</div>
           </td>
@@ -1290,7 +1291,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
     // Desabilita botão durante processamento
     const textoOriginal = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "🧠 Gerando...";
+    btn.textContent = "Gerando...";
 
     try {
       console.log("🤖 Gerando diagnóstico com IA...");
@@ -1653,7 +1654,7 @@ endblock %} {% set active_page = 'atendimento' %} {% block content %}
                                 <div class="cliente-actions">
                                     <button class="btn btn-secondary" onclick="visualizarCliente('${
                                       cliente.id
-                                    }')">👁️ Visualizar</button>
+                                    }')"><i class="bi bi-eye"></i> Visualizar</button>
                                     <button class="btn btn-primary" onclick="selecionarCliente('${
                                       cliente.id
                                     }')">Selecionar</button>

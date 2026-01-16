@@ -239,7 +239,7 @@ class AIChatManager {
                     <div class="message-time">${this.formatarHora(new Date(message.timestamp))}</div>
                 </div>
                 <div class="message-avatar">
-                    <span class="user-icon">👤</span>
+                    <span class="user-icon"><i class="bi bi-person"></i></span>
                 </div>
             </div>
         `;
@@ -257,7 +257,7 @@ class AIChatManager {
                     const os = message.data.dados;
                     conteudoExtra = `
                         <div class="data-preview os-preview">
-                            <h4>📋 Ordem de Serviço ${os.numeroOS}</h4>
+                            <h4><i class="bi bi-clipboard"></i> Ordem de Serviço ${os.numeroOS}</h4>
                             <div class="preview-details">
                                 <span><strong>Cliente:</strong> ${os.clienteNome}</span>
                                 <span><strong>Status:</strong> ${this.formatarStatus(os.status)}</span>
@@ -272,7 +272,7 @@ class AIChatManager {
                     const cliente = message.data.dados;
                     conteudoExtra = `
                         <div class="data-preview cliente-preview">
-                            <h4>👤 Cliente: ${cliente.nome}</h4>
+                            <h4><i class="bi bi-person"></i> Cliente: ${cliente.nome}</h4>
                             <div class="preview-details">
                                 <span><strong>CPF/CNPJ:</strong> ${cliente.cpf_cnpj}</span>
                                 <span><strong>Telefone:</strong> ${cliente.telefone}</span>
@@ -286,7 +286,7 @@ class AIChatManager {
                     const fin = message.data.dados;
                     conteudoExtra = `
                         <div class="data-preview financeiro-preview">
-                            <h4>💰 Dados Financeiros</h4>
+                            <h4><i class="bi bi-cash"></i> Dados Financeiros</h4>
                             <div class="preview-details">
                                 <span><strong>Receitas Totais:</strong> R$ ${fin.receitas_totais.toFixed(2)}</span>
                                 <span><strong>OS Entregues:</strong> ${fin.os_entregues}</span>
@@ -302,7 +302,7 @@ class AIChatManager {
                     const baixoEstoque = prod.baixo_estoque.slice(0, 5);
                     conteudoExtra = `
                         <div class="data-preview produtos-preview">
-                            <h4>📦 Estoque</h4>
+                            <h4><i class="bi bi-box-seam"></i> Estoque</h4>
                             <div class="preview-details">
                                 <span><strong>Total de Produtos:</strong> ${prod.total_produtos}</span>
                                 <span><strong>Com Estoque Baixo:</strong> ${baixoEstoque.length} produtos</span>
@@ -324,7 +324,7 @@ class AIChatManager {
         const mensagemHTML = `
             <div class="message ai-message">
                 <div class="message-avatar">
-                    <span class="ai-icon">🤖</span>
+                    <span class="ai-icon"><i class="bi bi-cpu"></i></span>
                 </div>
                 <div class="message-content">
                     <div class="message-header">
@@ -471,13 +471,19 @@ class AIChatManager {
                     <div class="message-time">${this.formatarHora(new Date())}</div>
                 </div>
                 <div class="message-avatar">
-                    <span class="user-icon">👤</span>
+                    <span class="user-icon"><i class="bi bi-person"></i></span>
                 </div>
             </div>
         `;
 
         this.chatMessages.insertAdjacentHTML('beforeend', mensagemHTML);
         this.scrollParaBaixo();
+
+        // Restaurar foco no input mesmo em caso de erro
+        this.chatInput.focus();
+
+        // Atualizar histórico após adicionar mensagem de erro
+        this.carregarHistorico();
     }
 
     adicionarMensagemIA(resposta) {
@@ -501,7 +507,7 @@ class AIChatManager {
                     const os = resposta.dados.dados;
                     conteudoExtra = `
                         <div class="data-preview os-preview">
-                            <h4>📋 Ordem de Serviço ${os.numeroOS}</h4>
+                            <h4><i class="bi bi-clipboard"></i> Ordem de Serviço ${os.numeroOS}</h4>
                             <div class="preview-details">
                                 <span><strong>Cliente:</strong> ${os.clienteNome}</span>
                                 <span><strong>Status:</strong> ${this.formatarStatus(os.status)}</span>
@@ -516,7 +522,7 @@ class AIChatManager {
                     const cliente = resposta.dados.dados;
                     conteudoExtra = `
                         <div class="data-preview cliente-preview">
-                            <h4>👤 Cliente: ${cliente.nome}</h4>
+                            <h4><i class="bi bi-person"></i> Cliente: ${cliente.nome}</h4>
                             <div class="preview-details">
                                 <span><strong>CPF/CNPJ:</strong> ${cliente.cpf_cnpj}</span>
                                 <span><strong>Telefone:</strong> ${cliente.telefone}</span>
@@ -530,7 +536,7 @@ class AIChatManager {
                     const fin = resposta.dados.dados;
                     conteudoExtra = `
                         <div class="data-preview financeiro-preview">
-                            <h4>💰 Dados Financeiros</h4>
+                            <h4><i class="bi bi-cash"></i> Dados Financeiros</h4>
                             <div class="preview-details">
                                 <span><strong>Receitas Totais:</strong> R$ ${fin.receitas_totais.toFixed(2)}</span>
                                 <span><strong>OS Entregues:</strong> ${fin.os_entregues}</span>
@@ -546,7 +552,7 @@ class AIChatManager {
                     const baixoEstoque = prod.baixo_estoque.slice(0, 5); // Limitar a 5 produtos
                     conteudoExtra = `
                         <div class="data-preview produtos-preview">
-                            <h4>📦 Estoque</h4>
+                            <h4><i class="bi bi-box-seam"></i> Estoque</h4>
                             <div class="preview-details">
                                 <span><strong>Total de Produtos:</strong> ${prod.total_produtos}</span>
                                 <span><strong>Com Estoque Baixo:</strong> ${baixoEstoque.length} produtos</span>
@@ -568,7 +574,7 @@ class AIChatManager {
         const mensagemHTML = `
             <div class="message ai-message">
                 <div class="message-avatar">
-                    <span class="ai-icon">🤖</span>
+                    <span class="ai-icon"><i class="bi bi-cpu"></i></span>
                 </div>
                 <div class="message-content">
                     <div class="message-header">
@@ -586,6 +592,9 @@ class AIChatManager {
         this.chatMessages.insertAdjacentHTML('beforeend', mensagemHTML);
         this.scrollParaBaixo();
 
+        // Restaurar foco no input para melhor UX
+        this.chatInput.focus();
+
         // Atualizar histórico após adicionar mensagem
         this.carregarHistorico();
     }
@@ -594,7 +603,7 @@ class AIChatManager {
         const mensagemHTML = `
             <div class="message ai-message error-message">
                 <div class="message-avatar">
-                    <span class="ai-icon">⚠️</span>
+                    <span class="ai-icon"><i class="bi bi-exclamation-triangle"></i></span>
                 </div>
                 <div class="message-content">
                     <div class="message-header">
@@ -620,7 +629,7 @@ class AIChatManager {
         const loadingHTML = `
             <div class="message ai-message loading-message" id="loadingMessage">
                 <div class="message-avatar">
-                    <span class="ai-icon">🤖</span>
+                    <span class="ai-icon"><i class="bi bi-cpu"></i></span>
                 </div>
                 <div class="message-content">
                     <div class="message-header">

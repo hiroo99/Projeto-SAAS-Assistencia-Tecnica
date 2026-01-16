@@ -244,7 +244,7 @@ function renderizarTabela() {
         tbody.innerHTML = `
             <tr>
                 <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-medium);">
-                    <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
+                    <div style="font-size: 48px; margin-bottom: 20px;"><i class="bi bi-box-seam"></i></div>
                     <div>Nenhum produto encontrado</div>
                     <div style="font-size: 14px; margin-top: 10px;">
                         ${produtosEmMemoria.length === 0 ? 'Cadastre seu primeiro produto!' : 'Tente ajustar os filtros de busca.'}
@@ -282,13 +282,13 @@ function renderizarTabela() {
             <td>
                 <div class="actions-cell">
                     <button class="action-btn-small btn-view" onclick="visualizarProduto('${produto.id}')" title="Visualizar">
-                        👁️
+                        <i class="bi bi-eye"></i>
                     </button>
                     <button class="action-btn-small btn-edit" onclick="editarProduto('${produto.id}')" title="Editar">
-                        ✏️
+                        <i class="bi bi-pencil"></i>
                     </button>
                     <button class="action-btn-small btn-delete" onclick="excluirProduto('${produto.id}')" title="Excluir">
-                        🗑️
+                        <i class="bi bi-trash"></i>
                     </button>
                 </div>
             </td>
@@ -396,14 +396,14 @@ function limparFiltros() {
  */
 function getIconeCategoria(categoria) {
     const icones = {
-        'Telas': '📱',
-        'Baterias': '🔋',
-        'Câmeras': '📷',
-        'Conectores': '🔌',
-        'Alto-falantes': '🔊',
-        'Outros': '🛠️'
+        'Telas': '<i class="bi bi-phone"></i>',
+        'Baterias': '<i class="bi bi-battery"></i>',
+        'Câmeras': '<i class="bi bi-camera"></i>',
+        'Conectores': '<i class="bi bi-plug"></i>',
+        'Alto-falantes': '<i class="bi bi-volume-up"></i>',
+        'Outros': '<i class="bi bi-tools"></i>'
     };
-    return icones[categoria] || '📦';
+    return icones[categoria] || '<i class="bi bi-box-seam"></i>';
 }
 
 /**

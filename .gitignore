@@ -3,6 +3,12 @@ __pycache__/
 **/__pycache__/
 *.pyc
 
+# Virtual environment
+backend/.venv/
+
+# Environment variables
+.env
+
 # Banco de dados SQLite
 backend/app.db
 *.db

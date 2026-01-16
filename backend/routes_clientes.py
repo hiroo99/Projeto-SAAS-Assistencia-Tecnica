@@ -163,6 +163,38 @@ def obter_cliente(cliente_id: int):
     return jsonify(cliente_to_dict(cliente))
 
 
+@bp.delete("/<int:cliente_id>")
+@login_required
+def deletar_cliente(cliente_id: int):
+    cliente = Cliente.query.get_or_404(cliente_id)
+
+    # Verificar se o cliente tem ordens de serviço ativas
+    from models import OrdemServico
+    os_ativas = OrdemServico.query.filter_by(cliente_id=cliente_id).filter(
+        OrdemServico.status.in_(["aguardando", "em_reparo", "pronto"])
+    ).count()
+
+    if os_ativas > 0:
+        return (
+            jsonify(
+                {
+                    "erro": "Cliente possui OS ativas",
+                    "mensagem": f"Não é possível excluir o cliente {cliente.nome} pois ele possui {os_ativas} ordem(ns) de serviço ativa(s).",
+                }
+            ),
+            400,
+        )
+
+    try:
+        db.session.delete(cliente)
+        db.session.commit()
+    except IntegrityError as e:
+        db.session.rollback()
+        raise
+
+    return "", 204
+
+
 @bp.put("/<int:cliente_id>")
 @login_required
 def atualizar_cliente(cliente_id: int):
