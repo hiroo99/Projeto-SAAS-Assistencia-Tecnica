@@ -34,7 +34,11 @@ def criar_cliente_interno(dados_cliente: dict) -> dict:
     """
     # Limpa o CPF/CNPJ removendo caracteres especiais
     cpf_cnpj_limpo = (
-        dados_cliente["cpfCnpj"].replace(".", "").replace("-", "").replace("/", "").strip()
+        dados_cliente["cpfCnpj"]
+        .replace(".", "")
+        .replace("-", "")
+        .replace("/", "")
+        .strip()
     )
 
     # Verifica se o CPF/CNPJ já existe
@@ -111,11 +115,14 @@ def criar_cliente():
             409,
         )
 
+    # Limpa o telefone removendo caracteres especiais
+    telefone_limpo = "".join(c for c in data["telefone"] if c.isdigit()).strip()
+
     cliente = Cliente(
         nome=data["nome"].strip(),
         cpf_cnpj=cpf_cnpj_limpo,
         tipo_pessoa=data.get("tipoPessoa") or "pessoa_fisica",
-        telefone=data["telefone"].strip(),
+        telefone=telefone_limpo,
         email=(data.get("email") or "").strip() or None,
         endereco=(data.get("endereco") or "").strip() or None,
         observacoes=(data.get("observacoes") or "").strip() or None,
