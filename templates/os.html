@@ -824,13 +824,20 @@ endblock %} {% set active_page = 'os' %} {% block content %}
       const os = buscarOSPorId(osId);
       if (os) {
         modalTitle.textContent = "Editar Ordem de Serviço";
-        preencherFormulario(os);
         submitBtn.textContent = "Atualizar O.S";
       }
     }
 
     // Carrega clientes no select
     carregarClientesSelect();
+
+    // Preenche formulário APÓS carregar clientes (para edição)
+    if (tipo === "editarOS" && osId) {
+      const os = buscarOSPorId(osId);
+      if (os) {
+        preencherFormulario(os);
+      }
+    }
 
     // Configura event listener do formulário (sempre que o modal é aberto)
     configurarEventListenerFormulario();
@@ -854,8 +861,31 @@ endblock %} {% set active_page = 'os' %} {% block content %}
     document.getElementById("osId").value = os.id;
     document.getElementById("numeroOS").value = os.numeroOS;
     document.getElementById("prioridade").value = os.prioridade || "normal";
-    document.getElementById("cliente").value = os.clienteId; // Usar ID do cliente
-    document.getElementById("tipoAparelho").value = os.tipoAparelho;
+
+    // Cliente com garantia visual
+    const clienteSelect = document.getElementById("cliente");
+    clienteSelect.value = os.clienteId;
+    const clienteOptions = clienteSelect.querySelectorAll('option');
+    clienteOptions.forEach(option => {
+      if (option.value === os.clienteId.toString()) {
+        option.setAttribute('selected', 'selected');
+      } else {
+        option.removeAttribute('selected');
+      }
+    });
+
+    // Tipo de Aparelho com garantia visual
+    const tipoAparelhoSelect = document.getElementById("tipoAparelho");
+    tipoAparelhoSelect.value = os.tipoAparelho;
+    const tipoOptions = tipoAparelhoSelect.querySelectorAll('option');
+    tipoOptions.forEach(option => {
+      if (option.value === os.tipoAparelho) {
+        option.setAttribute('selected', 'selected');
+      } else {
+        option.removeAttribute('selected');
+      }
+    });
+
     document.getElementById("marcaModelo").value = os.marcaModelo;
     document.getElementById("imeiSerial").value = os.imeiSerial || "";
     document.getElementById("corAparelho").value = os.corAparelho || "";
